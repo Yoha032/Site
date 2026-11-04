@@ -106,6 +106,7 @@ h1{font-size:20px}
 .promo small{color:var(--ac);font-weight:800;font-size:12px;letter-spacing:.12em}
 .promo div{font:600 18px Unbounded,sans-serif;margin:6px 0 2px}
 .promo span{color:var(--mu);font-size:14px}
+.emp{padding:12px 16px;border-top:1px solid var(--ln);color:var(--mu);font-size:14px}
 </style>
 </head>
 <body>
@@ -134,7 +135,7 @@ h1{font-size:20px}
 var MID=0; /* номер счётчика Яндекс Метрики: замените 0 на свой */
 (function(){if(!MID)return;(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t);a=e.getElementsByTagName(t)[0];k.async=1;k.src=r;a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(MID,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true})})();
 function G(n){try{if(MID&&window.ym)ym(MID,"reachGoal",n)}catch(e){}}
-var DEMO={base:"",folders:[{name:"Интервью",episodes:[{title:"[Гость 1] — [тема]",duration:2890,date:"2026-10-11"},{title:"[Гость 2] — [тема]",duration:2410,date:"2026-09-20"}]},{name:"Подкасты",episodes:[{title:"[Выпуск] — [тема]",duration:1980,date:"2026-10-01"}]},{name:"Эфиры",episodes:[{title:"[Эфир] — [тема]",duration:3300,date:"2026-08-30"}]}]};
+var DEMO={base:"",folders:[{name:"Интервью",episodes:[]},{name:"Подкасты",episodes:[]},{name:"Эфиры",episodes:[]}]};
 var PS='<svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
 var PA='<svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>';
 var R=[1,1.25,1.5,2],ri=0,pos=0,play=false,real=false,cur=null,fresh=null,want=0,lastSave=0,E={},L=[],base="";
@@ -144,7 +145,7 @@ var P=S.g("as:p")||{},au=new Audio(),ICON=new URL("icon-512.png",location.href).
 au.preload="metadata";
 function mm(s){s=s||0;return Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0")}
 function save(){if(!cur)return;P[cur.k]=pos;S.s("as:p",P);S.s("as:last",cur.k);lastSave=Date.now()}
-function ui(){if(!cur)return;$("ttl").textContent=cur.t;$("meta").textContent=cur.f+(cur.date?" · "+cur.date:"")+(cur.d?" · "+Math.round(cur.d/60)+" мин":"");
+function ui(){if(!cur)return;$("ttl").textContent=cur.t;$("meta").textContent=cur.f+(cur.date?" · "+cur.date.split("-").reverse().join("."):"")+(cur.d?" · "+Math.round(cur.d/60)+" мин":"");
 $("lbl").textContent=cur===fresh?"СВЕЖИЙ ВЫПУСК":"СЕЙЧАС В ПЛЕЕРЕ";
 $("fill").style.width=(cur.d?pos/cur.d*100:0)+"%";$("t1").textContent=mm(pos);$("t2").textContent=cur.d?mm(cur.d):"";
 $("sl").setAttribute("aria-valuemax",Math.round(cur.d||0));$("sl").setAttribute("aria-valuenow",Math.round(pos));
@@ -155,9 +156,9 @@ function meta(){if(!("mediaSession" in navigator))return;try{var art=cur.c?new U
 navigator.mediaSession.metadata=new MediaMetadata({title:cur.t,artist:"АндрейСпросил",album:cur.f,artwork:[{src:art,sizes:"512x512",type:"image/png"}]})}catch(e){}}
 function load(ep,go){if(cur)save();cur=ep;pos=P[ep.k]||0;if(ep.d&&pos>ep.d-5)pos=0;want=pos;
 if(real){au.src=ep.u;au.playbackRate=R[ri]}meta();ui();if(go)toggle(true)}
-function toggle(on){if(real){if(on===undefined?au.paused:on){var pr=au.play();if(pr&&pr.catch)pr.catch(function(){play=false;ui()})}else au.pause()}else{play=on===undefined?!play:on;ui()}}
-function setPos(t){t=Math.max(0,Math.min(cur.d||1e9,t));if(real){au.currentTime=t}pos=t;ui()}
-function nxt(dir){var l=L[cur.fi],i=l.indexOf(cur)+dir;if(i>=0&&i<l.length){load(l[i],true);return true}return false}
+function toggle(on){if(!cur)return;if(real){if(on===undefined?au.paused:on){var pr=au.play();if(pr&&pr.catch)pr.catch(function(){play=false;ui()})}else au.pause()}else{play=on===undefined?!play:on;ui()}}
+function setPos(t){if(!cur)return;t=Math.max(0,Math.min(cur.d||1e9,t));if(real){au.currentTime=t}pos=t;ui()}
+function nxt(dir){if(!cur||!L[cur.fi])return;var l=L[cur.fi],i=l.indexOf(cur)+dir;if(i>=0&&i<l.length){load(l[i],true);return true}return false}
 function ended(){G("finished");P[cur.k]=0;pos=0;play=false;save();ui();nxt(1)}
 au.onloadedmetadata=function(){if(isFinite(au.duration))cur.d=au.duration;if(want){au.currentTime=want;want=0}ui()};
 au.ontimeupdate=function(){pos=au.currentTime;if(Date.now()-lastSave>5000)save();ui();
@@ -167,7 +168,7 @@ au.onerror=function(){$("meta").textContent="Не удалось загрузи�
 setInterval(function(){if(!real&&play&&cur){pos+=.25*R[ri];if(pos>=cur.d){pos=cur.d;ended()}ui()}},250);
 $("pl").onclick=function(){toggle()};$("bk").onclick=function(){setPos(pos-15)};$("fw").onclick=function(){setPos(pos+30)};
 $("sp").onclick=function(){ri=(ri+1)%R.length;au.playbackRate=R[ri];ui()};
-$("sl").onclick=function(e){var r=this.getBoundingClientRect();setPos((cur.d||0)*Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)))};
+$("sl").onclick=function(e){var r=this.getBoundingClientRect();setPos(((cur&&cur.d)||0)*Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)))};
 $("sl").onkeydown=function(e){if(e.key=="ArrowRight")setPos(pos+5);if(e.key=="ArrowLeft")setPos(pos-5)};
 $("fl").onclick=function(e){var b=e.target.closest(".ep");if(!b)return;load(E[b.dataset.k],true);window.scrollTo({top:0,behavior:"smooth"})};
 document.addEventListener("visibilitychange",function(){if(document.hidden)save()});addEventListener("pagehide",save);
@@ -177,8 +178,9 @@ function init(cat,ok){real=ok;base=cat.base||"";var h="",best=null;
 cat.folders.forEach(function(f,i){var eps=f.episodes.slice().sort(function(a,b){return (b.date||"")>(a.date||"")?1:-1});L[i]=[];
 h+="<details"+(i==0?" open":"")+"><summary>"+f.name+"<small>"+eps.length+" вып.</small></summary>";
 eps.forEach(function(x,j){var ep={k:i+"-"+j,fi:i,t:x.title,d:x.duration||0,f:f.name,date:x.date||"",c:x.cover||"",u:base+encodeURI(x.file||"")};E[ep.k]=ep;L[i].push(ep);
-if(!best||ep.date>best.date)best=ep;h+='<button class="ep" data-k="'+ep.k+'">'+ep.t+"<b>"+(ep.d?Math.round(ep.d/60)+" мин":"")+"</b></button>"});h+="</details>"});
-$("fl").innerHTML=h;fresh=best;var last=E[S.g("as:last")];load(last&&P[last.k]>5?last:best,false);}
+if(!best||ep.date>best.date)best=ep;h+='<button class="ep" data-k="'+ep.k+'">'+ep.t+"<b>"+(ep.d?Math.round(ep.d/60)+" мин":"")+"</b></button>"});h+=(eps.length?"":'<div class="emp">Пока пусто</div>')+"</details>"});
+$("fl").innerHTML=h;if(cat.featured){var x=cat.featured,fe={k:"f",fi:-1,t:x.title,d:x.duration||0,f:x.folder||"АндрейСпросил",date:x.date||"",c:x.cover||"",u:base+encodeURI(x.file||"")};E.f=fe;L[-1]=[fe];if(!best||fe.date>=best.date)best=fe}
+fresh=best;if(!best){$("ttl").textContent="Выпуски скоро появятся";$("lbl").textContent="СКОРО";$("meta").textContent="";return}var last=E[S.g("as:last")];load(last&&P[last.k]>5?last:best,false);}
 fetch("catalog.json",{cache:"no-cache"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(c){init(c,true)}).catch(function(){init(DEMO,false)});
 $("trk2").textContent=("НА ДАННОМ САЙТЕ ПРЕДСТАВЛЕНЫ ЗАПИСИ ЭФИРОВ · ").repeat(8);
 $("trk").textContent=("ПОДКАСТЫ · ИНТЕРВЬЮ · ЭФИРЫ · [ВАШ ПРОЕКТ] · ").repeat(8);
