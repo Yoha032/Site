@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>АндрейСпросил</title>
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="АндрейСпросил">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0A0A;--cd:#161616;--tx:#F5F5F5;--mu:#A3A3A3;--ln:#2A2A2A;--ac:#B6FF1A;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:#0A0A0A;color:var(--tx);font:400 16px/1.4 Manrope,system-ui,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.logo{font:700 22px Unbounded,sans-serif;display:flex;overflow:hidden}
+.logo span{display:inline-block;animation:inL .7s cubic-bezier(.2,.7,.2,1) both}
+.logo .b{color:var(--ac);animation-name:inR}
+@keyframes inL{from{transform:translateX(-120%);opacity:0}}
+@keyframes inR{from{transform:translateX(120%);opacity:0}}
+header a{color:var(--tx);font-weight:600;font-size:14px}
+.grid{display:grid;gap:20px}
+@media(min-width:860px){.grid{grid-template-columns:1.1fr .9fr;align-items:start}}
+.left,.right{display:flex;flex-direction:column;gap:20px;min-width:0}
+.rv{opacity:0;transform:translateY(16px);animation:up .6s cubic-bezier(.2,.7,.2,1) calc(var(--i,0)*100ms) forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.hero{position:relative;border-radius:24px;overflow:hidden;background:var(--cd)}
+.hero video{display:block;width:100%;aspect-ratio:736/400;object-fit:cover}
+.live{position:absolute;left:12px;top:12px;display:flex;gap:8px;align-items:center;background:rgba(10,10,10,.8);padding:6px 12px;border-radius:16px;font:800 12px Manrope;letter-spacing:.1em}
+.live i{width:9px;height:9px;border-radius:50%;background:#FF3B30;animation:bl 1.2s infinite}
+@keyframes bl{50%{opacity:.25}}
+.player{background:var(--cd);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.lbl{color:var(--ac);font-weight:800;font-size:12px;letter-spacing:.12em}
+h1{margin:0;font:600 24px/1.2 Unbounded,sans-serif}
+.meta{color:var(--mu);font-size:14px}
+.eq{display:flex;gap:4px;align-items:flex-end;height:28px}
+.eq span{width:6px;height:6px;border-radius:3px;background:var(--ac);animation:eq .9s ease-in-out infinite alternate;animation-play-state:paused}
+.eq span:nth-child(2){animation-duration:.6s}.eq span:nth-child(3){animation-duration:.75s}.eq span:nth-child(4){animation-duration:.5s}.eq span:nth-child(5){animation-duration:.85s}
+.playing .eq span{animation-play-state:running}
+@keyframes eq{to{height:28px}}
+.sl{padding:8px 0;cursor:pointer}
+.bar{height:8px;border-radius:4px;background:#333;overflow:hidden}
+#fill{height:100%;background:var(--ac);width:0}
+.tm{display:flex;justify-content:space-between;font-size:13px;color:var(--mu)}
+.ctl{display:flex;align-items:center;justify-content:space-between}
+.sk{width:48px;height:48px;border-radius:50%;border:2px solid #333;background:none;color:var(--tx);font:800 13px Manrope;cursor:pointer;transition:.2s}
+.sk:hover{border-color:var(--ac);color:var(--ac)}
+.pl{position:relative;width:76px;height:76px;border-radius:50%;border:0;background:var(--ac);color:#0A0A0A;cursor:pointer;display:grid;place-items:center;transition:transform .15s}
+.pl:active{transform:scale(.94)}
+.pl::after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid var(--ac);opacity:0}
+.playing .pl::after{animation:ring 1.6s ease-out infinite}
+@keyframes ring{from{opacity:.8;transform:scale(1)}to{opacity:0;transform:scale(1.6)}}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sp{height:44px;padding:0 20px;border-radius:22px;border:0;background:var(--ac);color:#0A0A0A;font:800 14px Manrope;cursor:pointer}
+.auto{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mu);min-height:44px;cursor:pointer}
+.auto input{width:20px;height:20px;accent-color:#B6FF1A}
+details{background:var(--cd);border-radius:16px;margin-bottom:10px;overflow:hidden}
+summary{display:flex;align-items:center;padding:14px 16px;font-weight:600;cursor:pointer;list-style:none;min-height:48px}
+summary::-webkit-details-marker{display:none}
+summary small{color:var(--mu);font-weight:400;margin-left:auto}
+summary::after{content:"›";color:var(--ac);font-size:22px;transition:transform .25s;margin-left:10px}
+details[open] summary::after{transform:rotate(90deg)}
+.ep{display:flex;width:100%;gap:10px;align-items:center;padding:12px 16px;border:0;border-top:1px solid var(--ln);background:none;color:var(--tx);font:400 14px Manrope;text-align:left;cursor:pointer;min-height:48px;transition:background .2s}
+.ep:hover{background:#1f1f1f}
+.ep::before{content:"";flex:none;width:8px;height:8px;border-radius:50%}
+.ep b{margin-left:auto;color:var(--mu);font-weight:400}
+.ep.on{color:var(--ac)}.ep.on::before{background:var(--ac)}
+.about{background:var(--cd);border-radius:20px;padding:20px}
+.ab{display:flex;align-items:center;gap:14px;margin:10px 0}
+.ph{flex:none;width:64px;height:64px;border-radius:50%;border:2px dashed var(--ln);display:grid;place-items:center;color:var(--mu);font-size:11px;font-weight:600}
+.about h2{margin:0;font:600 18px Unbounded,sans-serif}
+.about p{margin:0;color:var(--tx)}
+.soc{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.soc a{height:44px;border-radius:22px;border:2px solid var(--ln);display:grid;place-items:center;color:var(--tx);font-weight:700;font-size:13px;text-decoration:none;transition:.2s}
+.soc a:hover{background:var(--ac);color:#0A0A0A;border-color:var(--ac);transform:translateY(-2px)}
+.inst button{width:100%;height:48px;border-radius:24px;border:2px solid var(--ac);background:none;color:var(--ac);font:800 14px Manrope;cursor:pointer;transition:.2s}
+.inst button:hover{background:var(--ac);color:#0A0A0A}
+.inst p{margin:8px 0 0;color:var(--mu);font-size:13px}
+.ad{display:block;background:var(--ac);color:#0A0A0A;border-radius:20px;padding:16px;text-decoration:none;transition:transform .2s}
+.ad:hover{transform:scale(1.02)}
+.ad small{font-weight:800;font-size:12px;letter-spacing:.12em}
+.ad div{font:600 16px Unbounded,sans-serif;margin-top:6px}
+.tick{margin-top:24px;overflow:hidden;border-block:1px solid var(--ln);padding:10px 0;white-space:nowrap}
+.trk{display:inline-block;animation:mq 30s linear infinite;color:var(--ac);font:700 14px Unbounded,sans-serif;letter-spacing:.08em}
+@keyframes mq{to{transform:translateX(-50%)}}
+.note{color:var(--mu);font-size:12px;text-align:center;margin-top:12px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header><div class="logo"><span>Андрей</span><span class="b">Спросил</span></div><a href="#about">Обо мне</a></header>
+<div class="grid">
+<section class="left">
+<div class="hero rv" style="--i:1"><video src="hero.mp4" autoplay loop muted playsinline aria-label="Анимация: ведущий в студии, горит табло «В эфире»"></video><div class="live"><i></i>В ЭФИРЕ</div></div>
+<div class="player rv" style="--i:2">
+<div class="lbl" id="lbl">СВЕЖИЙ ВЫПУСК</div>
+<h1 id="ttl">Загрузка…</h1><div class="meta" id="meta"></div>
+<div class="eq" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+<div class="sl" id="sl" role="slider" tabindex="0" aria-label="Позиция в выпуске" aria-valuemin="0"><div class="bar"><div id="fill"></div></div></div>
+<div class="tm"><span id="t1">0:00</span><span id="t2"></span></div>
+<div class="ctl"><button class="sk" id="bk" aria-label="Назад на 15 секунд">−15</button><button class="pl" id="pl"></button><button class="sk" id="fw" aria-label="Вперёд на 30 секунд">+30</button></div>
+<div class="row"><button class="sp" id="sp" aria-label="Сменить скорость"></button><label class="auto"><input type="checkbox" id="ato">Автопереход к следующему</label></div>
+</div>
+</section>
+<section class="right">
+<div class="rv" style="--i:3"><div class="lbl" style="margin-bottom:10px">ПАПКИ</div><div id="fl"></div></div>
+<section class="about rv" id="about" style="--i:4"><div class="lbl">ОБО МНЕ</div><div class="ab"><div class="ph">[ФОТО]</div><h2>Андрей Кузнецов</h2></div><p>Я Андрей Кузнецов, ведущий, интервьюер, креативное звено, голос эфиров и многих мероприятий. Это моя страничка, публикую тут результаты трудов.</p></section>
+<div class="soc rv" id="social" style="--i:5"><a href="#vk">ВК</a><a href="#tg">Telegram</a><a href="#yt">YouTube</a><a href="#ig">Instagram</a></div>
+<div class="inst rv" id="inst" style="--i:6"><button id="ins">Установить как приложение</button><p id="ih" hidden></p></div>
+<a href="#ad" class="ad rv" style="--i:7"><small>РЕКЛАМА</small><div>[Ваш проект или услуга]</div></a>
+</section>
+</div>
+<div class="tick" aria-hidden="true"><div class="trk" id="trk"></div></div>
+<div class="note" id="note"></div>
+</main>
+<script>
+var DEMO={base:"",folders:[{name:"Интервью",episodes:[{title:"[Гость 1] — [тема]",duration:2890,date:"2026-10-11"},{title:"[Гость 2] — [тема]",duration:2410,date:"2026-09-20"}]},{name:"Подкасты",episodes:[{title:"[Выпуск] — [тема]",duration:1980,date:"2026-10-01"}]},{name:"Эфиры",episodes:[{title:"[Эфир] — [тема]",duration:3300,date:"2026-08-30"}]}]};
+var PS='<svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
+var PA='<svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>';
+var R=[1,1.25,1.5,2],ri=0,pos=0,play=false,real=false,cur=null,fresh=null,want=0,lastSave=0,E={},L=[],base="";
+var $=function(i){return document.getElementById(i)};
+var S={g:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},s:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+var P=S.g("as:p")||{},au=new Audio(),ICON=new URL("icon-512.png",location.href).href;
+au.preload="metadata";
+function mm(s){s=s||0;return Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0")}
+function save(){if(!cur)return;P[cur.k]=pos;S.s("as:p",P);S.s("as:last",cur.k);lastSave=Date.now()}
+function ui(){if(!cur)return;$("ttl").textContent=cur.t;$("meta").textContent=cur.f+(cur.date?" · "+cur.date:"")+(cur.d?" · "+Math.round(cur.d/60)+" мин":"");
+var res=P[cur.k]>5&&cur!==fresh;$("lbl").textContent=cur===fresh&&!(P[cur.k]>5&&pos>5&&!play&&0)?"СВЕЖИЙ ВЫПУСК":"СЕЙЧАС В ПЛЕЕРЕ";
+$("fill").style.width=(cur.d?pos/cur.d*100:0)+"%";$("t1").textContent=mm(pos);$("t2").textContent=cur.d?mm(cur.d):"";
+$("sl").setAttribute("aria-valuemax",Math.round(cur.d||0));$("sl").setAttribute("aria-valuenow",Math.round(pos));
+document.body.classList.toggle("playing",play);var p=$("pl"),n=play?PA:PS;if(p.dataset.s!=n){p.innerHTML=n;p.dataset.s=n}
+p.setAttribute("aria-label",play?"Пауза":"Воспроизвести");$("sp").textContent="Скорость "+R[ri]+"x";
+document.querySelectorAll(".ep").forEach(function(b){b.classList.toggle("on",b.dataset.k==cur.k)})}
+function meta(){if(!("mediaSession" in navigator))return;try{var art=cur.c?new URL(cur.c,new URL(base,location.href)).href:ICON;
+navigator.mediaSession.metadata=new MediaMetadata({title:cur.t,artist:"АндрейСпросил",album:cur.f,artwork:[{src:art,sizes:"512x512",type:"image/png"}]})}catch(e){}}
+function load(ep,go){if(cur)save();cur=ep;pos=P[ep.k]||0;if(ep.d&&pos>ep.d-5)pos=0;want=pos;
+if(real){au.src=ep.u;au.playbackRate=R[ri]}meta();ui();if(go)toggle(true)}
+function toggle(on){if(real){if(on===undefined?au.paused:on){var pr=au.play();if(pr&&pr.catch)pr.catch(function(){play=false;ui()})}else au.pause()}else{play=on===undefined?!play:on;ui()}}
+function setPos(t){t=Math.max(0,Math.min(cur.d||1e9,t));if(real){au.currentTime=t}pos=t;ui()}
+function nxt(dir){var l=L[cur.fi],i=l.indexOf(cur)+dir;if(i>=0&&i<l.length){load(l[i],true);return true}return false}
+function ended(){P[cur.k]=0;pos=0;play=false;save();ui();if($("ato").checked)nxt(1)}
+au.onloadedmetadata=function(){if(isFinite(au.duration))cur.d=au.duration;if(want){au.currentTime=want;want=0}ui()};
+au.ontimeupdate=function(){pos=au.currentTime;if(Date.now()-lastSave>5000)save();ui();
+if("mediaSession" in navigator&&cur.d&&navigator.mediaSession.setPositionState){try{navigator.mediaSession.setPositionState({duration:cur.d,playbackRate:au.playbackRate,position:Math.min(pos,cur.d)})}catch(e){}}};
+au.onplay=function(){play=true;ui()};au.onpause=function(){play=false;save();ui()};au.onended=ended;
+au.onerror=function(){$("note").textContent="Не удалось загрузить файл выпуска. Проверьте путь в catalog.json."};
+setInterval(function(){if(!real&&play&&cur){pos+=.25*R[ri];if(pos>=cur.d){pos=cur.d;ended()}ui()}},250);
+$("pl").onclick=function(){toggle()};$("bk").onclick=function(){setPos(pos-15)};$("fw").onclick=function(){setPos(pos+30)};
+$("sp").onclick=function(){ri=(ri+1)%R.length;au.playbackRate=R[ri];ui()};
+$("sl").onclick=function(e){var r=this.getBoundingClientRect();setPos((cur.d||0)*Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)))};
+$("sl").onkeydown=function(e){if(e.key=="ArrowRight")setPos(pos+5);if(e.key=="ArrowLeft")setPos(pos-5)};
+$("ato").checked=S.g("as:auto")!==false;$("ato").onchange=function(){S.s("as:auto",this.checked)};
+$("fl").onclick=function(e){var b=e.target.closest(".ep");if(!b)return;load(E[b.dataset.k],true);window.scrollTo({top:0,behavior:"smooth"})};
+document.addEventListener("visibilitychange",function(){if(document.hidden)save()});addEventListener("pagehide",save);
+if("mediaSession" in navigator){var ms=navigator.mediaSession,H={play:function(){toggle(true)},pause:function(){toggle(false)},seekbackward:function(){setPos(pos-15)},seekforward:function(){setPos(pos+30)},previoustrack:function(){nxt(-1)},nexttrack:function(){nxt(1)},seekto:function(d){setPos(d.seekTime)}};
+for(var a in H){try{ms.setActionHandler(a,H[a])}catch(e){}}}
+function init(cat,ok){real=ok;base=cat.base||"";var h="",best=null;
+cat.folders.forEach(function(f,i){var eps=f.episodes.slice().sort(function(a,b){return (b.date||"")>(a.date||"")?1:-1});L[i]=[];
+h+="<details"+(i==0?" open":"")+"><summary>"+f.name+"<small>"+eps.length+" вып.</small></summary>";
+eps.forEach(function(x,j){var ep={k:i+"-"+j,fi:i,t:x.title,d:x.duration||0,f:f.name,date:x.date||"",c:x.cover||"",u:base+encodeURI(x.file||"")};E[ep.k]=ep;L[i].push(ep);
+if(!best||ep.date>best.date)best=ep;h+='<button class="ep" data-k="'+ep.k+'">'+ep.t+"<b>"+(ep.d?Math.round(ep.d/60)+" мин":"")+"</b></button>"});h+="</details>"});
+$("fl").innerHTML=h;fresh=best;var last=E[S.g("as:last")];load(last&&P[last.k]>5?last:best,false);
+if(!ok)$("note").textContent="Демо-режим: каталог выпусков не найден, звук имитируется. Тексты в скобках — заглушки."}
+fetch("catalog.json",{cache:"no-cache"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(c){init(c,true)}).catch(function(){init(DEMO,false)});
+$("trk").textContent=("ПОДКАСТЫ · ИНТЕРВЬЮ · ЭФИРЫ · [ВАШ ПРОЕКТ] · ").repeat(8);
+var dp=null;addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e});
+if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)$("inst").hidden=true;
+$("ins").onclick=function(){if(dp){dp.prompt();dp=null;return}var h=$("ih");h.hidden=false;
+h.textContent=/iPhone|iPad|iPod/.test(navigator.userAgent)?"iPhone: нажмите «Поделиться» в Safari и выберите «На экран Домой».":"Android: откройте меню браузера ⋮ и выберите «Установить приложение». Компьютер: значок установки в адресной строке."};
+if("serviceWorker" in navigator&&location.protocol.indexOf("http")==0){navigator.serviceWorker.register("sw.js").catch(function(){})}
+</script>
+</body>
+</html>
