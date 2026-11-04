@@ -1,4 +1,4 @@
-# Запуск: python make_catalog.py ПАПКА_С_ПОДКАСТАМИ
+# Запуск: python make_catalog.py podcasts podcasts/
 # Структура: ПАПКА/Интервью/2026-10-11 Тема.mp3 (дата в начале имени файла)
 import os, re, sys, json
 try:
@@ -6,6 +6,7 @@ try:
 except ImportError:
     MP3 = None
 root = sys.argv[1]
+prefix = sys.argv[2] if len(sys.argv) > 2 else ""
 folders = []
 for name in sorted(os.listdir(root)):
     p = os.path.join(root, name)
@@ -17,7 +18,7 @@ for name in sorted(os.listdir(root)):
             continue
         m = re.match(r"(\d{4}-\d{2}-\d{2})[ _-]*(.*)\.mp3$", f, re.I)
         date, title = (m.group(1), m.group(2)) if m else ("", f[:-4])
-        e = {"title": title or f[:-4], "file": name + "/" + f, "date": date}
+        e = {"title": title or f[:-4], "file": prefix + name + "/" + f, "date": date}
         if MP3:
             e["duration"] = int(MP3(os.path.join(p, f)).info.length)
         eps.append(e)
