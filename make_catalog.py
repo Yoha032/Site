@@ -1,115 +1,118 @@
-# Запуск из корня репозитория: python make_catalog.py
-# Папки: podcasts/НАЗВАНИЕ_ПАПКИ/2026-10-11 Тема.mp3
-# Дата может быть в начале имени файла ИЛИ в конце названия («… 24 октября»).
-# Папка = раздел на сайте. Регистр папки podcasts не важен.
-import os
-import re
-import json
+#!/usr/bin/env python3
+"""Пересобирает catalog.json по папке podcasts/.
 
-try:
-    from mutagen.mp3 import MP3
-except ImportError:
-    MP3 = None
+Структура:  podcasts/<Папка>/<файл>.mp3
+Имя файла:  "2026-10-24 Название выпуска.mp3"  (дата в начале необязательна)
 
-DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
-MONTHS = {
-    "января": "01", "февраля": "02", "марта": "03", "апреля": "04",
-    "мая": "05", "июня": "06", "июля": "07", "августа": "08",
-    "сентября": "09", "октября": "10", "ноября": "11", "декабря": "12",
-}
+Что уже есть в catalog.json (название, дата, обложка, длительность),
+сохраняется: правьте вручную, скрипт не перезапишет.
+"""
+import json, re, subprocess, unicodedata
+from datetime import date
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent
+CAT = ROOT / "catalog.json"
+DEFAULT_FOLDERS = ["Интервью", "Подкасты", "Эфиры"]
+EXTS = {".mp3", ".m4a"}
 
 
-def dur(path):
-    if MP3 and os.path.exists(path):
-        try:
-            return int(MP3(path).info.length)
-        except Exception:
-            return None
+def nfc(s):
+    return unicodedata.normalize("NFC", s)
+
+
+def find_podcasts_dir():
+    for d in ROOT.iterdir():
+        if d.is_dir() and d.name.lower() == "podcasts":
+            return d
     return None
 
 
-def extract_date_and_title(filename):
-    """Из имени файла достаём ISO-дату и чистое название."""
-    name = filename[:-4] if filename.lower().endswith(".mp3") else filename
+def duration(path):
+    try:
+        from mutagen import File
+        f = File(path)
+        if f is not None and f.info and f.info.length:
+            return round(f.info.length)
+    except Exception:
+        pass
+    try:
+        out = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
+            capture_output=True, text=True, timeout=60).stdout.strip()
+        return round(float(out))
+    except Exception:
+        return 0
 
-    # 1) Явная ISO-дата в начале: 2026-10-24 Тема
-    m = re.match(r"^(\d{4}-\d{2}-\d{2})[ _\-–—]*(.*)$", name)
+
+def added_date(path):
+    try:
+        out = subprocess.run(
+            ["git", "log", "--diff-filter=A", "--format=%as", "--", str(path)],
+            capture_output=True, text=True, cwd=ROOT, timeout=30).stdout.split()
+        if out:
+            return out[-1]
+    except Exception:
+        pass
+    return date.today().isoformat()
+
+
+def title_and_date(path):
+    stem = nfc(path.stem)
+    m = re.match(r"^(\d{4}-\d{2}-\d{2})[\s_\-]+(.+)$", stem)
     if m:
-        return m.group(1), (m.group(2) or name).strip(" _-–—") or name
-
-    # 2) ISO-дата где угодно в имени
-    m = DATE_RE.search(name)
-    if m:
-        date = m.group(1)
-        title = (name[: m.start()] + name[m.end() :]).strip(" _-–—")
-        return date, title or name
-
-    # 3) «24 октября» или «24 октября 2026»
-    m = re.search(
-        r"(\d{1,2})\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)(?:\s+(\d{4}))?",
-        name,
-        re.I,
-    )
-    if m:
-        day = int(m.group(1))
-        mon = MONTHS[m.group(2).lower()]
-        year = m.group(3) or "2026"
-        date = f"{year}-{mon}-{day:02d}"
-        title = (name[: m.start()] + name[m.end() :]).strip(" _-–—")
-        return date, title or name
-
-    return "", name.strip()
+        return m.group(2).strip(), m.group(1)
+    return stem.strip(), added_date(path)
 
 
 def main():
-    folders = {}
-    for root in sorted(
-        d for d in os.listdir(".") if d.lower() == "podcasts" and os.path.isdir(d)
-    ):
-        for name in sorted(os.listdir(root)):
-            p = os.path.join(root, name)
-            if not os.path.isdir(p):
-                continue
-            eps = folders.setdefault(name, [])
-            for f in sorted(os.listdir(p)):
-                if not f.lower().endswith(".mp3"):
-                    continue
-                date, title = extract_date_and_title(f)
-                rel = f"{root}/{name}/{f}"
-                e = {"title": title or f[:-4], "file": rel, "date": date}
-                d = dur(os.path.join(p, f))
+    old = {}
+    base, featured = "", None
+    if CAT.exists():
+        try:
+            data = json.loads(CAT.read_text(encoding="utf-8"))
+            base, featured = data.get("base", ""), data.get("featured")
+            for f in data.get("folders", []):
+                for e in f.get("episodes", []):
+                    old[nfc(e.get("file", ""))] = e
+        except Exception:
+            pass
+
+    pdir = find_podcasts_dir()
+    found = {}
+    if pdir:
+        for sub in sorted(p for p in pdir.iterdir() if p.is_dir()):
+            found[nfc(sub.name)] = sorted(p for p in sub.iterdir() if p.suffix.lower() in EXTS)
+
+    names = list(DEFAULT_FOLDERS) + sorted(n for n in found if n not in DEFAULT_FOLDERS)
+    folders = []
+    for name in names:
+        eps = []
+        for p in found.get(name, []):
+            rel = p.relative_to(ROOT).as_posix()
+            prev = old.get(nfc(rel))
+            if prev:
+                ep = dict(prev)
+                ep["file"] = rel
+                if not ep.get("duration"):
+                    d = duration(p)
+                    if d:
+                        ep["duration"] = d
+            else:
+                title, day = title_and_date(p)
+                ep = {"title": title, "file": rel, "date": day}
+                d = duration(p)
                 if d:
-                    e["duration"] = d
-                eps.append(e)
+                    ep["duration"] = d
+            eps.append(ep)
+        eps.sort(key=lambda e: (e.get("date", ""), e["title"]), reverse=True)
+        folders.append({"name": name, "episodes": eps})
 
-    # Стабильный порядок разделов
-    preferred = ["Интервью", "Подкасты", "Эфиры"]
-    ordered = []
-    seen = set()
-    for n in preferred:
-        if n in folders:
-            ordered.append({"name": n, "episodes": folders[n]})
-            seen.add(n)
-    for n, eps in folders.items():
-        if n not in seen:
-            ordered.append({"name": n, "episodes": eps})
-
-    cat = {"base": "", "folders": ordered}
-
-    if os.path.exists("featured.json"):
-        with open("featured.json", encoding="utf-8") as fh:
-            ft = json.load(fh)
-        if "duration" not in ft and ft.get("file"):
-            d = dur(ft["file"])
-            if d:
-                ft["duration"] = d
-        cat["featured"] = ft
-
-    with open("catalog.json", "w", encoding="utf-8") as fh:
-        json.dump(cat, fh, ensure_ascii=False, indent=1)
-
-    total = sum(len(f["episodes"]) for f in ordered)
-    print(f"Готово: папок {len(ordered)}, выпусков {total}")
+    out = {"base": base, "folders": folders}
+    if featured:
+        out["featured"] = featured
+    CAT.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    print("Готово:", sum(len(f["episodes"]) for f in folders), "выпусков в", len(folders), "папках")
 
 
 if __name__ == "__main__":

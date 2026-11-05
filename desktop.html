@@ -2,144 +2,129 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>АндрейСпросил</title>
 <meta name="theme-color" content="#0A0A0A">
-<script>
-(function(){
-  var pv=null;try{pv=localStorage.getItem("as:view")}catch(e){}
-  if(pv==="m"||matchMedia("(max-width:700px)").matches)location.replace("index.html");
-})();
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preload" as="image" href="Bg/frame-halloween.webp">
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Manrope,system-ui,sans-serif}
-#bg{position:fixed;inset:0;background:#0A0A0A center/cover no-repeat;transition:background-image .45s ease}
-#dim{position:fixed;inset:0;background:rgba(0,0,0,.42);pointer-events:none;z-index:1}
-#phone{
-  position:fixed;z-index:2;left:50%;top:48%;
-  width:min(22vw,300px);height:min(45.2vw,616px);
-  transform:translate(-50%,-50%);
-  box-sizing:border-box;padding:10px;
-  border-radius:42px;background:#0c0c0d;
-  box-shadow:inset 0 0 0 2px #3a3a40,0 0 0 3px #050505,0 24px 60px rgba(0,0,0,.55);
-}
-#phone::before{content:"";position:absolute;right:-6px;top:22%;width:5px;height:12%;border-radius:3px;background:#2a2a2e}
-#phone::after{content:"";position:absolute;left:-6px;top:18%;width:5px;height:7%;border-radius:3px;background:#2a2a2e;box-shadow:0 80px 0 #2a2a2e}
-#screen{position:relative;width:100%;height:100%;border-radius:32px;overflow:hidden;background:#0A0A0A}
-#screen iframe{width:100%;height:100%;border:0;display:block;background:#0A0A0A}
-#isl{position:absolute;left:50%;top:8px;width:28%;height:18px;margin-left:-14%;border-radius:12px;background:#000;pointer-events:none;z-index:2}
-#home{position:absolute;left:50%;bottom:6px;width:32%;height:4px;margin-left:-16%;border-radius:2px;background:rgba(255,255,255,.45);pointer-events:none;z-index:2}
 
-.bar{position:fixed;z-index:50;display:flex;gap:10px;align-items:center}
-.bar.top-right{top:16px;right:16px}
-.bar.top-left{top:16px;left:16px;flex-wrap:wrap;max-width:calc(100vw - 100px)}
-.vt,.bgsw{
-  display:flex;padding:3px;border:2px solid #B6FF1A;border-radius:24px;
-  background:rgba(10,10,10,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
-  font:700 13px Manrope,sans-serif;position:relative;
-}
-.vt i,.bgsw i{
-  position:absolute;top:3px;bottom:3px;left:3px;border-radius:20px;background:#B6FF1A;
-  transition:transform .3s cubic-bezier(.2,.7,.2,1);
-  pointer-events:none;
-}
-.vt i{width:48px}
-.bgsw i{width:96px}
-.vt button,.bgsw button{
-  position:relative;z-index:1;display:flex;align-items:center;justify-content:center;
-  height:34px;padding:0 14px;border:0;border-radius:20px;background:none;
-  color:#F5F5F5;font:inherit;cursor:pointer;transition:color .25s;white-space:nowrap;
-}
-.vt button{width:48px;padding:0;font-size:18px;line-height:1}
-.bgsw button{min-width:96px}
-.vt button[aria-pressed=true],.bgsw button[aria-pressed=true]{color:#0A0A0A}
-.vt button:focus-visible,.bgsw button:focus-visible{outline:2px solid #fff;outline-offset:2px}
-@media (prefers-reduced-motion:reduce){.vt i,.bgsw i,.vt button,.bgsw button,#bg{transition:none}}
-@media (max-width:1100px){
-  #phone{width:min(28vw,280px);height:min(57.5vw,574px)}
-}
-@media (max-width:800px){
-  #phone{width:min(42vw,260px);height:min(86vw,534px)}
-  .bgsw button{min-width:80px;padding:0 10px;font-size:12px}
-  .bgsw i{width:80px}
-}
+/* Сцена: сайт лежит ПОД фото, а у фото розовый экран вырезан насквозь.
+   Поэтому пальцы, рамка телефона и когти остаются поверх сайта. */
+#stage{position:fixed;inset:0;opacity:0;transition:opacity .22s ease}
+#win{position:absolute;left:0;top:0;width:390px;height:800px;transform-origin:0 0;overflow:hidden;background:#0A0A0A;z-index:1}
+#win iframe{display:block;width:100%;height:100%;border:0;background:#0A0A0A}
+#frame{position:absolute;left:0;top:0;max-width:none;z-index:2;pointer-events:none;user-select:none;-webkit-user-drag:none}
+
+/* Переключатели: компактная группа справа сверху, не растягивается */
+.ctl{position:fixed;z-index:50;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));
+  display:flex;gap:8px;align-items:center}
+.seg{position:relative;display:flex;padding:3px;border:2px solid #B6FF1A;border-radius:24px;
+  background:rgba(10,10,10,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.seg i{position:absolute;top:3px;bottom:3px;left:3px;width:48px;border-radius:20px;background:#B6FF1A;
+  transform:translateX(calc(var(--k,0)*48px));transition:transform .3s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+.seg button{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:48px;height:34px;padding:0;
+  border:0;border-radius:20px;background:none;color:#F5F5F5;font-size:18px;line-height:1;cursor:pointer}
+.seg button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){#stage,.seg i{transition:none}}
 </style>
 </head>
 <body>
-<div id="bg" role="img" aria-label="Фон"></div>
-<div id="dim"></div>
-<div id="phone">
-  <div id="screen">
-    <iframe src="index.html?app=1" title="Сайт АндрейСпросил" allow="autoplay"></iframe>
-    <div id="isl"></div>
-    <div id="home"></div>
-  </div>
+<div id="stage">
+  <div id="win"><iframe src="index.html?app=1" title="Сайт АндрейСпросил" allow="autoplay"></iframe></div>
+  <img id="frame" alt="" draggable="false">
 </div>
+
+<nav class="ctl" aria-label="Настройки вида">
+  <div class="seg" id="vt" role="group" aria-label="Вид сайта" style="--k:1">
+    <i></i>
+    <button type="button" data-m="m" aria-pressed="false" aria-label="Телефон" title="Телефон">📱</button>
+    <button type="button" data-m="d" aria-pressed="true" aria-label="Компьютер" title="Компьютер">💻</button>
+  </div>
+  <div class="seg" id="bgsw" role="group" aria-label="Фон" style="--k:1">
+    <i></i>
+    <button type="button" data-k="urban" aria-pressed="false" aria-label="Урбан" title="Урбан">🏙️</button>
+    <button type="button" data-k="halloween" aria-pressed="true" aria-label="Хэллоуин" title="Хэллоуин">🎃</button>
+    <button type="button" data-k="glam" aria-pressed="false" aria-label="Гламурный" title="Гламурный">💅</button>
+  </div>
+</nav>
 
 <script>
 (function(){
-  var BGS={
-    urban:{src:"Bg/IMG_7048.jpeg",label:"Урбан"},
-    halloween:{src:"Bg/IMG_7054.jpeg",label:"Хэллоуин"},
-    glam:{src:"Bg/IMG_7056.jpeg",label:"Гламурный"}
+  /* Координаты розового экрана на каждом фото (доли от размера картинки) */
+  var F={
+    urban:    {src:"Bg/frame-urban.webp",    w:1280,h:720,x0:.4125, y0:.07083,x1:.59609,y1:.73333},
+    halloween:{src:"Bg/frame-halloween.webp",w:1360,h:768,x0:.41544,y0:.08854,x1:.59265,y1:.72396},
+    glam:     {src:"Bg/frame-glam.webp",     w:1360,h:768,x0:.42794,y0:.10156,x1:.59853,y1:.71094}
   };
-  var order=["urban","halloween","glam"];
-  var bgEl=document.getElementById("bg");
-  var cur=null;
+  var ORDER=["urban","halloween","glam"],SW=390,SH=800,FILL=.8;
+  var stage=document.getElementById("stage"),win=document.getElementById("win"),img=document.getElementById("frame");
+  var vt=document.getElementById("vt"),bgsw=document.getElementById("bgsw");
+  var cur=null,shown=null,timer=0;
   try{cur=localStorage.getItem("as:bg")}catch(e){}
-  if(!BGS[cur])cur="urban";
+  if(!F[cur])cur="halloween";   /* первый заход — Хэллоуин, дальше запоминаем выбор */
 
-  function setBg(key){
-    if(!BGS[key])return;
-    cur=key;
-    bgEl.style.backgroundImage='url("'+BGS[key].src+'")';
-    try{localStorage.setItem("as:bg",key)}catch(e){}
-    var btns=document.querySelectorAll(".bgsw button");
-    var idx=order.indexOf(key);
-    btns.forEach(function(b,i){b.setAttribute("aria-pressed",String(i===idx))});
-    var thumb=document.querySelector(".bgsw i");
-    if(thumb){
-      var w=btns[0]?btns[0].offsetWidth:96;
-      thumb.style.width=w+"px";
-      thumb.style.transform="translateX("+(idx*w)+"px)";
-    }
+  function clamp(v,lo,hi){return Math.min(hi,Math.max(lo,v))}
+
+  /* Подгоняем фото и окно сайта под экран:
+     фото закрывает весь экран, а розовое окно крупнее, чтобы сайт читался. */
+  function layout(){
+    var f=F[cur],W=innerWidth,H=innerHeight;
+    var hw=(f.x1-f.x0)*f.w,hh=(f.y1-f.y0)*f.h;
+    var cover=Math.max(W/f.w,H/f.h);
+    var want=Math.min(H*FILL/hh,W*.9/hw);
+    var s=Math.max(cover,Math.min(want,SW/hw));
+    var iw=f.w*s,ih=f.h*s;
+    var ox=clamp(W/2-(f.x0+f.x1)/2*iw,W-iw,0),oy=clamp(H/2-(f.y0+f.y1)/2*ih,H-ih,0);
+    img.style.width=iw+"px";img.style.height=ih+"px";
+    img.style.left=ox+"px";img.style.top=oy+"px";
+    win.style.transform="translate("+(ox+f.x0*iw)+"px,"+(oy+f.y0*ih)+"px) scale("+((f.x1-f.x0)*iw/SW)+","+((f.y1-f.y0)*ih/SH)+")";
   }
 
-  var bgsw=document.createElement("div");
-  bgsw.className="bgsw bar top-left";
-  bgsw.setAttribute("role","group");
-  bgsw.setAttribute("aria-label","Фон");
-  bgsw.innerHTML='<i></i>'+
-    '<button type="button" data-k="urban">Урбан</button>'+
-    '<button type="button" data-k="halloween">Хэллоуин</button>'+
-    '<button type="button" data-k="glam">Гламурный</button>';
-  bgsw.onclick=function(e){
-    var b=e.target.closest("button");if(!b)return;
-    setBg(b.dataset.k);
-  };
-  document.body.appendChild(bgsw);
+  function show(){
+    if(shown===cur){layout();stage.style.opacity=1;return}
+    img.onload=function(){shown=cur;layout();stage.style.opacity=1};
+    img.src=F[cur].src;
+    if(img.complete&&img.naturalWidth){img.onload()}
+  }
 
-  var vt=document.createElement("div");
-  vt.className="vt bar top-right";
-  vt.setAttribute("role","group");
-  vt.setAttribute("aria-label","Вид сайта");
-  vt.innerHTML='<i></i>'+
-    '<button type="button" data-m="m" aria-label="Телефон" title="Телефон">📱</button>'+
-    '<button type="button" data-m="d" aria-pressed="true" aria-label="Компьютер" title="Компьютер">💻</button>';
-  var th=vt.querySelector("i");
-  th.style.transform="translateX(48px)";
-  vt.onclick=function(e){
+  function mark(group,idx){
+    group.style.setProperty("--k",idx);
+    group.querySelectorAll("button").forEach(function(b,i){b.setAttribute("aria-pressed",String(i===idx))});
+  }
+
+  function setBg(key,first){
+    if(!F[key])return;
+    cur=key;
+    try{localStorage.setItem("as:bg",key)}catch(e){}
+    mark(bgsw,ORDER.indexOf(key));
+    if(first){show();return}
+    stage.style.opacity=0;
+    clearTimeout(timer);
+    timer=setTimeout(show,220);
+  }
+
+  bgsw.addEventListener("click",function(e){
+    var b=e.target.closest("button");if(!b||b.dataset.k===cur)return;
+    setBg(b.dataset.k,false);
+  });
+
+  vt.addEventListener("click",function(e){
     var b=e.target.closest("button");if(!b||b.dataset.m==="d")return;
     try{localStorage.setItem("as:view","m")}catch(err){}
     location.href="index.html";
-  };
-  document.body.appendChild(vt);
+  });
 
   try{localStorage.setItem("as:view","d")}catch(e){}
+  mark(vt,1);
+  setBg(cur,true);
+  addEventListener("resize",layout);
+  addEventListener("orientationchange",function(){setTimeout(layout,200)});
 
-  setBg(cur);
-  addEventListener("resize",function(){setBg(cur)});
+  /* Подгружаем остальные фоны, чтобы переключение было мгновенным */
+  addEventListener("load",function(){ORDER.forEach(function(k){if(k!==cur)(new Image()).src=F[k].src})});
 })();
 </script>
 </body>
