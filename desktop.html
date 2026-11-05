@@ -6,14 +6,17 @@
 <title>АндрейСпросил</title>
 <meta name="theme-color" content="#0A0A0A">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preload" as="image" href="Bg/frame-halloween.webp">
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Manrope,system-ui,sans-serif}
 
 /* Сцена: сайт лежит ПОД фото, а у фото розовый экран вырезан насквозь.
    Поэтому пальцы, рамка телефона и когти остаются поверх сайта. */
-#stage{position:fixed;inset:0;opacity:0;transition:opacity .22s ease}
+#stage{position:fixed;left:0;right:0;bottom:0;top:0;overflow:hidden;opacity:0;transition:opacity .22s ease}
 #win{position:absolute;left:0;top:0;width:390px;height:800px;transform-origin:0 0;overflow:hidden;background:#0A0A0A;z-index:1}
 #win iframe{display:block;width:100%;height:100%;border:0;background:#0A0A0A}
 #frame{position:absolute;left:0;top:0;max-width:none;z-index:2;pointer-events:none;user-select:none;-webkit-user-drag:none}
@@ -60,7 +63,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
     glam:     {src:"Bg/frame-glam.webp",     alt:"Bg/IMG_7056.jpeg",w:1360,h:768,x0:.42794,y0:.10156,x1:.59853,y1:.71094}
   };
   var ORDER=["urban","halloween","glam"],SW=390,SH=800,FILL=.8;
-  var stage=document.getElementById("stage"),win=document.getElementById("win"),img=document.getElementById("frame");
+  var ctl=document.querySelector(".ctl"),stage=document.getElementById("stage"),win=document.getElementById("win"),img=document.getElementById("frame");
   var vt=document.getElementById("vt"),bgsw=document.getElementById("bgsw");
   var cur=null,shown=null,timer=0;
   try{cur=localStorage.getItem("as:bg")}catch(e){}
@@ -70,17 +73,29 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
 
   /* Подгоняем фото и окно сайта под экран:
      фото закрывает весь экран, а розовое окно крупнее, чтобы сайт читался. */
-  function layout(){
-    var f=F[cur],W=innerWidth,H=innerHeight;
+  function calc(H){
+    var f=F[cur],W=innerWidth,pad=10;
+    var avail=Math.max(120,H-2*pad);
     var hw=(f.x1-f.x0)*f.w,hh=(f.y1-f.y0)*f.h;
     var cover=Math.max(W/f.w,H/f.h);
-    var want=Math.min(H*FILL/hh,W*.9/hw);
+    var want=Math.min(Math.min(avail*.94,H*.84)/hh,W*.9/hw);
     var s=Math.max(cover,Math.min(want,SW/hw));
     var iw=f.w*s,ih=f.h*s;
-    var ox=clamp(W/2-(f.x0+f.x1)/2*iw,W-iw,0),oy=clamp(H/2-(f.y0+f.y1)/2*ih,H-ih,0);
-    img.style.width=iw+"px";img.style.height=ih+"px";
-    img.style.left=ox+"px";img.style.top=oy+"px";
-    win.style.transform="translate("+(ox+f.x0*iw)+"px,"+(oy+f.y0*ih)+"px) scale("+((f.x1-f.x0)*iw/SW)+","+((f.y1-f.y0)*ih/SH)+")";
+    var ox=clamp(W/2-(f.x0+f.x1)/2*iw,W-iw,0);
+    var oy=clamp(H/2-(f.y0+f.y1)/2*ih,H-ih,0);
+    return {iw:iw,ih:ih,ox:ox,oy:oy,
+      L:ox+f.x0*iw,T:oy+f.y0*ih,R:ox+f.x1*iw,B:oy+f.y1*ih};
+  }
+
+  /* Если окно телефона заходит под переключатели, сцена целиком начинается ниже их полосы */
+  function layout(){
+    var c=ctl.getBoundingClientRect(),r=calc(innerHeight),off=0;
+    var hit=r.R>c.left-6&&r.L<c.right+6&&r.T<c.bottom+28;
+    if(hit){off=Math.ceil(c.bottom)+6;r=calc(innerHeight-off)}
+    stage.style.top=off+"px";
+    img.style.width=r.iw+"px";img.style.height=r.ih+"px";
+    img.style.left=r.ox+"px";img.style.top=r.oy+"px";
+    win.style.transform="translate("+r.L+"px,"+r.T+"px) scale("+((r.R-r.L)/SW)+","+((r.B-r.T)/SH)+")";
   }
 
   function reveal(){shown=cur;layout();stage.style.opacity=1}
@@ -89,10 +104,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
     if(shown===cur){reveal();return}
     var f=F[cur],tried=0;
     win.style.zIndex=1;                       /* обычный режим: сайт под фото */
+    win.style.borderRadius="";
     img.onload=reveal;
     img.onerror=function(){
       if(!tried){                             /* вырезанный кадр не нашёлся: берём исходное фото, сайт кладём поверх */
-        tried=1;win.style.zIndex=3;img.src=f.alt;
+        tried=1;win.style.zIndex=3;win.style.borderRadius="44px";img.src=f.alt;
       }else{                                  /* нет и фото: показываем хотя бы сайт на тёмном фоне */
         img.style.display="none";win.style.zIndex=3;reveal();
       }
