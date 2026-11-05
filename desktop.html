@@ -55,9 +55,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
 (function(){
   /* Координаты розового экрана на каждом фото (доли от размера картинки) */
   var F={
-    urban:    {src:"Bg/frame-urban.webp",    w:1280,h:720,x0:.4125, y0:.07083,x1:.59609,y1:.73333},
-    halloween:{src:"Bg/frame-halloween.webp",w:1360,h:768,x0:.41544,y0:.08854,x1:.59265,y1:.72396},
-    glam:     {src:"Bg/frame-glam.webp",     w:1360,h:768,x0:.42794,y0:.10156,x1:.59853,y1:.71094}
+    urban:    {src:"Bg/frame-urban.webp",    alt:"Bg/IMG_7048.jpeg", w:1280,h:720,x0:.4125, y0:.07083,x1:.59609,y1:.73333},
+    halloween:{src:"Bg/frame-halloween.webp",alt:"Bg/IMG_7054.jpeg",w:1360,h:768,x0:.41544,y0:.08854,x1:.59265,y1:.72396},
+    glam:     {src:"Bg/frame-glam.webp",     alt:"Bg/IMG_7056.jpeg",w:1360,h:768,x0:.42794,y0:.10156,x1:.59853,y1:.71094}
   };
   var ORDER=["urban","halloween","glam"],SW=390,SH=800,FILL=.8;
   var stage=document.getElementById("stage"),win=document.getElementById("win"),img=document.getElementById("frame");
@@ -83,11 +83,24 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
     win.style.transform="translate("+(ox+f.x0*iw)+"px,"+(oy+f.y0*ih)+"px) scale("+((f.x1-f.x0)*iw/SW)+","+((f.y1-f.y0)*ih/SH)+")";
   }
 
+  function reveal(){shown=cur;layout();stage.style.opacity=1}
+
   function show(){
-    if(shown===cur){layout();stage.style.opacity=1;return}
-    img.onload=function(){shown=cur;layout();stage.style.opacity=1};
-    img.src=F[cur].src;
-    if(img.complete&&img.naturalWidth){img.onload()}
+    if(shown===cur){reveal();return}
+    var f=F[cur],tried=0;
+    win.style.zIndex=1;                       /* обычный режим: сайт под фото */
+    img.onload=reveal;
+    img.onerror=function(){
+      if(!tried){                             /* вырезанный кадр не нашёлся: берём исходное фото, сайт кладём поверх */
+        tried=1;win.style.zIndex=3;img.src=f.alt;
+      }else{                                  /* нет и фото: показываем хотя бы сайт на тёмном фоне */
+        img.style.display="none";win.style.zIndex=3;reveal();
+      }
+    };
+    img.style.display="";
+    img.src=f.src;
+    if(img.complete&&img.naturalWidth)reveal();
+    setTimeout(function(){if(stage.style.opacity!=="1")reveal()},2500);   /* страховка: никогда не оставляем чёрный экран */
   }
 
   function mark(group,idx){

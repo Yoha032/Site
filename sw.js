@@ -1,4 +1,4 @@
-const C="as-v6",A=["./","index.html","desktop.html","manifest.webmanifest","icon-192.png","icon-512.png","hero.mp4","photo.jpg","Bg/frame-halloween.webp","Bg/frame-urban.webp","Bg/frame-glam.webp"];
+const C="as-v7",A=["./","index.html","desktop.html","manifest.webmanifest","icon-192.png","icon-512.png","hero.mp4","photo.jpg","Bg/frame-halloween.webp","Bg/frame-urban.webp","Bg/frame-glam.webp"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(A.map(a=>c.add(a).catch(()=>{})))));self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 self.addEventListener("fetch",e=>{const r=e.request,u=new URL(r.url);if(r.method!=="GET"||u.origin!==location.origin||r.headers.has("range")||/\.(mp3|json)$/i.test(u.pathname))return;
