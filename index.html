@@ -226,13 +226,40 @@ document.addEventListener("visibilitychange",function(){if(document.hidden)save(
 if("mediaSession" in navigator){var ms=navigator.mediaSession,H={play:function(){toggle(true)},pause:function(){toggle(false)},seekbackward:function(){setPos(pos-15)},seekforward:function(){setPos(pos+30)},previoustrack:function(){nxt(-1)},nexttrack:function(){nxt(1)},seekto:function(d){setPos(d.seekTime)}};
 for(var a in H){try{ms.setActionHandler(a,H[a])}catch(e){}}}
 function init(cat,ok){real=ok;base=cat.base||"";var h="",best=null;
+cat={base:cat.base,featured:cat.featured,folders:cat.folders.filter(function(f){return f.episodes&&f.episodes.length})};
 cat.folders.forEach(function(f,i){var eps=f.episodes.slice().sort(function(a,b){return (b.date||"")>(a.date||"")?1:-1});L[i]=[];
 h+="<details"+(i==0?" open":"")+"><summary>"+f.name+"<small>"+eps.length+" вып.</small></summary>";
 eps.forEach(function(x,j){var ep={k:i+"-"+j,fi:i,t:x.title,d:x.duration||0,f:f.name,date:x.date||"",c:x.cover||"",u:base+encPath(x.file||"")};E[ep.k]=ep;L[i].push(ep);
 if(!best||ep.date>best.date)best=ep;h+='<button class="ep" data-k="'+ep.k+'">'+ep.t+"<b>"+(ep.d?dm(ep.d):"")+"</b></button>"});h+=(eps.length?"":'<div class="emp">Пока пусто</div>')+"</details>"});
-$("fl").innerHTML=h;if(cat.featured){var x=cat.featured,fe={k:"f",fi:-1,t:x.title,d:x.duration||0,f:x.folder||"АндрейСпросил",date:x.date||"",c:x.cover||"",u:base+encPath(x.file||"")};E.f=fe;L[-1]=[fe];if(!best||fe.date>=best.date)best=fe}
+$("fl").innerHTML=h;$("fl").parentNode.hidden=!cat.folders.length;if(cat.featured){var x=cat.featured,fe={k:"f",fi:-1,t:x.title,d:x.duration||0,f:x.folder||"АндрейСпросил",date:x.date||"",c:x.cover||"",u:base+encPath(x.file||"")};E.f=fe;L[-1]=[fe];if(!best||fe.date>=best.date)best=fe}
 fresh=best;if(!best){$("ttl").textContent="Выпуски скоро появятся";$("lbl").textContent="СКОРО";$("meta").textContent="";return}var last=E[S.g("as:last")];load(last&&P[last.k]>5?last:best,false);}
-fetch("catalog.json",{cache:"no-cache"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(c){init(c,true)}).catch(function(){init(DEMO,false)});
+/* Автопоиск выпусков: если сайт на GitHub Pages, список mp3 в podcasts/ берётся прямо из репозитория.
+   catalog.json остаётся главным (названия, даты, длительность), а новые файлы, которых в нём ещё нет, добавляются сами. */
+function nfc(x){try{return String(x).normalize("NFC")}catch(e){return String(x)}}
+function ghInfo(){var q=/[?&]gh=([^&\/]+)\/([^&]+)/.exec(location.search);if(q)return{o:q[1],r:q[2]};
+var m=/^([^.]+)\.github\.io$/i.exec(location.hostname);if(!m)return null;
+var seg=location.pathname.split("/")[1]||"";return{o:m[1],r:(seg&&seg.indexOf(".")<0)?seg:m[1]+".github.io"}}
+function fetchT(u,ms){var ac=window.AbortController?new AbortController():null,t=ac&&setTimeout(function(){ac.abort()},ms);
+return fetch(u,ac?{signal:ac.signal}:{}).then(function(r){clearTimeout(t);if(!r.ok)throw 0;return r.json()})}
+function getTree(){var g=ghInfo();if(!g)return Promise.resolve(null);
+var c=S.g("as:tree");if(c&&c.k===g.o+"/"+g.r&&Date.now()-c.t<120000)return Promise.resolve(c.f);
+return fetchT("https://api.github.com/repos/"+g.o+"/"+g.r+"/git/trees/HEAD?recursive=1",6000).then(function(j){
+var f=(j.tree||[]).filter(function(x){return x.type==="blob"&&/^podcasts\/[^\/]+\/.+\.(mp3|m4a)$/i.test(x.path)}).map(function(x){return x.path});
+S.s("as:tree",{k:g.o+"/"+g.r,t:Date.now(),f:f});return f}).catch(function(){return c?c.f:null})}
+function addedDate(p){var g=ghInfo(),m=S.g("as:fd")||{};if(m[p]!==undefined)return Promise.resolve(m[p]);if(!g)return Promise.resolve("");
+return fetchT("https://api.github.com/repos/"+g.o+"/"+g.r+"/commits?per_page=1&path="+encodeURIComponent(p),6000).then(function(j){
+var d=j&&j[0]&&j[0].commit&&j[0].commit.committer?String(j[0].commit.committer.date).slice(0,10):"";if(d){m[p]=d;S.s("as:fd",m)}return d}).catch(function(){return ""})}
+function mergeTree(c,files){var have={},by={},jobs=[];
+c.folders.forEach(function(f){by[nfc(f.name)]=f;f.episodes.forEach(function(e){have[nfc(e.file)]=1})});
+files.forEach(function(p){if(have[nfc(p)])return;var m=/^podcasts\/([^\/]+)\/(.+)\.(mp3|m4a)$/i.exec(p);if(!m)return;
+var f=by[nfc(m[1])];if(!f){f={name:nfc(m[1]),episodes:[]};c.folders.push(f);by[nfc(m[1])]=f}
+var stem=nfc(m[2].split("/").pop()),d=/^(\d{4}-\d{2}-\d{2})[\s_\-]+(.+)$/.exec(stem),ep={title:d?d[2]:stem,file:p,date:d?d[1]:""};
+f.episodes.push(ep);if(!d)jobs.push(addedDate(p).then(function(x){ep.date=x}))});
+return Promise.all(jobs).then(function(){return c})}
+Promise.all([fetch("catalog.json",{cache:"no-cache"}).then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return null}),getTree()]).then(function(a){
+var c=a[0],t=a[1];if(!c&&!t){init(DEMO,false);return}
+c=c||{base:"",folders:[{name:"Интервью",episodes:[]},{name:"Подкасты",episodes:[]},{name:"Эфиры",episodes:[]}]};
+return(t?mergeTree(c,t):Promise.resolve(c)).then(function(m){init(m,true)})}).catch(function(){init(DEMO,false)});
 $("trk2").textContent=("НА ДАННОМ САЙТЕ ПРЕДСТАВЛЕНЫ ЗАПИСИ ЭФИРОВ · ").repeat(8);
 $("trk").textContent=("ПОДКАСТЫ · ИНТЕРВЬЮ · ЭФИРЫ · [ВАШ ПРОЕКТ] · ").repeat(8);
 var dp=null;addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e});

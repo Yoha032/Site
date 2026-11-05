@@ -50,7 +50,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
     <i></i>
     <button type="button" data-k="urban" aria-pressed="false" aria-label="Урбан" title="Урбан">🏙️</button>
     <button type="button" data-k="halloween" aria-pressed="true" aria-label="Хэллоуин" title="Хэллоуин">🎃</button>
-    <button type="button" data-k="glam" aria-pressed="false" aria-label="Гламурный" title="Гламурный">💅</button>
   </div>
 </nav>
 
@@ -59,10 +58,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
   /* Координаты розового экрана на каждом фото (доли от размера картинки) */
   var F={
     urban:    {src:"Bg/frame-urban.webp",    alt:"Bg/IMG_7048.jpeg", w:1280,h:720,x0:.4125, y0:.07083,x1:.59609,y1:.73333},
-    halloween:{src:"Bg/frame-halloween.webp",alt:"Bg/IMG_7054.jpeg",w:1360,h:768,x0:.41544,y0:.08854,x1:.59265,y1:.72396},
-    glam:     {src:"Bg/frame-glam.webp",     alt:"Bg/IMG_7056.jpeg",w:1360,h:768,x0:.42794,y0:.10156,x1:.59853,y1:.71094}
+    halloween:{src:"Bg/frame-halloween.webp",alt:"Bg/IMG_7054.jpeg",w:1360,h:768,x0:.41544,y0:.08854,x1:.59265,y1:.72396}
   };
-  var ORDER=["urban","halloween","glam"],SW=390,SH=800,FILL=.8;
+  var ORDER=["urban","halloween"],SW=390,SH=800,FILL=.8;
   var ctl=document.querySelector(".ctl"),stage=document.getElementById("stage"),win=document.getElementById("win"),img=document.getElementById("frame");
   var vt=document.getElementById("vt"),bgsw=document.getElementById("bgsw");
   var cur=null,shown=null,timer=0;
