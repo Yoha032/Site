@@ -154,6 +154,7 @@ var PS='<svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path
 var PA='<svg width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>';
 var R=[1,1.25,1.5,2],ri=0,pos=0,play=false,real=false,cur=null,fresh=null,want=0,lastSave=0,E={},L=[],base="";
 var $=function(i){return document.getElementById(i)};
+function encPath(p){return String(p||"").split("/").map(function(s){return encodeURIComponent(s)}).join("/")}
 var S={g:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},s:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 var P=S.g("as:p")||{},au=new Audio(),ICON=new URL("icon-512.png",location.href).href;
 au.preload="metadata";
@@ -185,8 +186,8 @@ p.setAttribute("aria-label",play?"Пауза":"Воспроизвести");$("s
 document.querySelectorAll(".ep").forEach(function(b){b.classList.toggle("on",b.dataset.k==cur.k)})}
 function meta(){if(!("mediaSession" in navigator))return;try{var art=cur.c?new URL(cur.c,new URL(base,location.href)).href:ICON;
 navigator.mediaSession.metadata=new MediaMetadata({title:cur.t,artist:"АндрейСпросил",album:cur.f,artwork:[{src:art,sizes:"512x512",type:"image/png"}]})}catch(e){}}
-function load(ep,go){if(cur)save();cur=ep;err="";wb=seed(ep.k);pos=P[ep.k]||0;if(ep.d&&pos>ep.d-5)pos=0;want=pos;
-if(real){au.src=ep.u;au.playbackRate=R[ri]}meta();ui();if(go)toggle(true)}
+function load(ep,go){if(cur)save();cur=ep;err="";cur._try=0;wb=seed(ep.k);pos=P[ep.k]||0;if(ep.d&&pos>ep.d-5)pos=0;want=pos;
+if(real){au.src=ep.u;au.playbackRate=R[ri]}else{play=false}meta();ui();if(go)toggle(true)}
 function toggle(on){if(!cur)return;if(real){if(on===undefined?au.paused:on){var pr=au.play();if(pr&&pr.catch)pr.catch(function(){play=false;ui()})}else au.pause()}else{play=on===undefined?!play:on;ui()}}
 function setPos(t){if(!cur)return;t=Math.max(0,Math.min(cur.d||1e9,t));if(real){au.currentTime=t}pos=t;ui()}
 function nxt(dir){if(!cur||!L[cur.fi])return;var l=L[cur.fi],i=l.indexOf(cur)+dir;if(i>=0&&i<l.length){load(l[i],true);return true}return false}
@@ -195,7 +196,14 @@ au.onloadedmetadata=function(){if(isFinite(au.duration))cur.d=au.duration;if(wan
 au.ontimeupdate=function(){pos=au.currentTime;if(Date.now()-lastSave>5000)save();ui();
 if("mediaSession" in navigator&&cur.d&&navigator.mediaSession.setPositionState){try{navigator.mediaSession.setPositionState({duration:cur.d,playbackRate:au.playbackRate,position:Math.min(pos,cur.d)})}catch(e){}}};
 au.onplay=function(){if(ac&&ac.state==="suspended")ac.resume();play=true;G("play");ui()};au.onpause=function(){play=false;save();ui()};au.onended=ended;
-au.onerror=function(){if(!cur)return;if(!cur.r&&/^[Pp]odcasts\//.test(cur.u)){cur.r=1;cur.u=(cur.u.charAt(0)==="p"?"P":"p")+cur.u.slice(1);want=pos;au.src=cur.u;return}err="Не удалось загрузить файл: "+decodeURI(cur.u||"");ui()};
+au.onerror=function(){if(!cur)return;play=false;
+if(!cur._try){cur._try=1;var u=cur.u,alts=[];
+if(/^[Pp]odcasts\//.test(u))alts.push((u.charAt(0)==="p"?"P":"p")+u.slice(1));
+try{alts.push(decodeURI(u))}catch(e){}
+try{alts.push(encodeURI(decodeURI(u)))}catch(e){}
+for(var i=0;i<alts.length;i++){if(alts[i]&&alts[i]!==u){cur.u=alts[i];want=pos;au.src=cur.u;return}}
+}
+err="Не удалось загрузить файл. Проверьте, что mp3 есть на сервере и имя совпадает с каталогом.";ui()};
 setInterval(function(){if(!real&&play&&cur){pos+=.25*R[ri];if(pos>=cur.d){pos=cur.d;ended()}ui()}},250);
 $("pl").onclick=function(){toggle()};$("bk").onclick=function(){setPos(pos-15)};$("fw").onclick=function(){setPos(pos+30)};
 $("sp").onclick=function(){ri=(ri+1)%R.length;au.playbackRate=R[ri];ui()};
@@ -208,9 +216,9 @@ for(var a in H){try{ms.setActionHandler(a,H[a])}catch(e){}}}
 function init(cat,ok){real=ok;base=cat.base||"";var h="",best=null;
 cat.folders.forEach(function(f,i){var eps=f.episodes.slice().sort(function(a,b){return (b.date||"")>(a.date||"")?1:-1});L[i]=[];
 h+="<details"+(i==0?" open":"")+"><summary>"+f.name+"<small>"+eps.length+" вып.</small></summary>";
-eps.forEach(function(x,j){var ep={k:i+"-"+j,fi:i,t:x.title,d:x.duration||0,f:f.name,date:x.date||"",c:x.cover||"",u:base+encodeURI(x.file||"")};E[ep.k]=ep;L[i].push(ep);
+eps.forEach(function(x,j){var ep={k:i+"-"+j,fi:i,t:x.title,d:x.duration||0,f:f.name,date:x.date||"",c:x.cover||"",u:base+encPath(x.file||"")};E[ep.k]=ep;L[i].push(ep);
 if(!best||ep.date>best.date)best=ep;h+='<button class="ep" data-k="'+ep.k+'">'+ep.t+"<b>"+(ep.d?dm(ep.d):"")+"</b></button>"});h+=(eps.length?"":'<div class="emp">Пока пусто</div>')+"</details>"});
-$("fl").innerHTML=h;if(cat.featured){var x=cat.featured,fe={k:"f",fi:-1,t:x.title,d:x.duration||0,f:x.folder||"АндрейСпросил",date:x.date||"",c:x.cover||"",u:base+encodeURI(x.file||"")};E.f=fe;L[-1]=[fe];if(!best||fe.date>=best.date)best=fe}
+$("fl").innerHTML=h;if(cat.featured){var x=cat.featured,fe={k:"f",fi:-1,t:x.title,d:x.duration||0,f:x.folder||"АндрейСпросил",date:x.date||"",c:x.cover||"",u:base+encPath(x.file||"")};E.f=fe;L[-1]=[fe];if(!best||fe.date>=best.date)best=fe}
 fresh=best;if(!best){$("ttl").textContent="Выпуски скоро появятся";$("lbl").textContent="СКОРО";$("meta").textContent="";return}var last=E[S.g("as:last")];load(last&&P[last.k]>5?last:best,false);}
 fetch("catalog.json",{cache:"no-cache"}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(c){init(c,true)}).catch(function(){init(DEMO,false)});
 $("trk2").textContent=("НА ДАННОМ САЙТЕ ПРЕДСТАВЛЕНЫ ЗАПИСИ ЭФИРОВ · ").repeat(8);
