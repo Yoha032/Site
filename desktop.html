@@ -5,7 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>АндрейСпросил</title>
 <meta name="theme-color" content="#0A0A0A">
-<script>if(!matchMedia("(min-width:900px) and (min-height:600px) and (hover:hover) and (pointer:fine)").matches)location.replace("index.html")</script>
+<script>
+(function(){
+  var pv=null;try{pv=localStorage.getItem("as:view")}catch(e){}
+  if(pv==="m"||matchMedia("(max-width:700px)").matches)location.replace("index.html");
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Manrope,system-ui,sans-serif}
@@ -26,10 +31,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
 #isl{position:absolute;left:50%;top:8px;width:28%;height:18px;margin-left:-14%;border-radius:12px;background:#000;pointer-events:none;z-index:2}
 #home{position:absolute;left:50%;bottom:6px;width:32%;height:4px;margin-left:-16%;border-radius:2px;background:rgba(255,255,255,.45);pointer-events:none;z-index:2}
 
-/* controls */
 .bar{position:fixed;z-index:50;display:flex;gap:10px;align-items:center}
 .bar.top-right{top:16px;right:16px}
-.bar.top-left{top:16px;left:16px}
+.bar.top-left{top:16px;left:16px;flex-wrap:wrap;max-width:calc(100vw - 100px)}
 .vt,.bgsw{
   display:flex;padding:3px;border:2px solid #B6FF1A;border-radius:24px;
   background:rgba(10,10,10,.88);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
@@ -37,7 +41,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
 }
 .vt i,.bgsw i{
   position:absolute;top:3px;bottom:3px;left:3px;border-radius:20px;background:#B6FF1A;
-  transition:transform .3s cubic-bezier(.2,.7,.2,1),width .3s cubic-bezier(.2,.7,.2,1);
+  transition:transform .3s cubic-bezier(.2,.7,.2,1);
   pointer-events:none;
 }
 .vt i{width:48px}
@@ -54,6 +58,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
 @media (prefers-reduced-motion:reduce){.vt i,.bgsw i,.vt button,.bgsw button,#bg{transition:none}}
 @media (max-width:1100px){
   #phone{width:min(28vw,280px);height:min(57.5vw,574px)}
+}
+@media (max-width:800px){
+  #phone{width:min(42vw,260px);height:min(86vw,534px)}
+  .bgsw button{min-width:80px;padding:0 10px;font-size:12px}
+  .bgsw i{width:80px}
 }
 </style>
 </head>
@@ -90,10 +99,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
     var idx=order.indexOf(key);
     btns.forEach(function(b,i){b.setAttribute("aria-pressed",String(i===idx))});
     var thumb=document.querySelector(".bgsw i");
-    if(thumb)thumb.style.transform="translateX("+(idx*96)+"px)";
+    if(thumb){
+      var w=btns[0]?btns[0].offsetWidth:96;
+      thumb.style.width=w+"px";
+      thumb.style.transform="translateX("+(idx*w)+"px)";
+    }
   }
 
-  /* background switcher */
   var bgsw=document.createElement("div");
   bgsw.className="bgsw bar top-left";
   bgsw.setAttribute("role","group");
@@ -108,7 +120,6 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
   };
   document.body.appendChild(bgsw);
 
-  /* view switcher: emoji only */
   var vt=document.createElement("div");
   vt.className="vt bar top-right";
   vt.setAttribute("role","group");
@@ -125,7 +136,10 @@ html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0A;font-family:Ma
   };
   document.body.appendChild(vt);
 
+  try{localStorage.setItem("as:view","d")}catch(e){}
+
   setBg(cur);
+  addEventListener("resize",function(){setBg(cur)});
 })();
 </script>
 </body>
