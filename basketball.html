@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Баскетбол · АндрейСпросил</title>
 <meta name="theme-color" content="#0A0A0A">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -17,6 +18,8 @@ body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 Manrope,sys
 main{max-width:520px;margin:0 auto;padding:16px}
 h1{font:700 24px/1.1 Unbounded,sans-serif;margin:6px 0 14px}
 h1 .st{font:400 12px Manrope,sans-serif;display:block;margin-top:6px}
+html.tg header{display:none}
+html.tg main{padding-top:10px}
 header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
 .logo{font:700 22px Unbounded,sans-serif;text-decoration:none;color:var(--tx)}
 .logo b{color:var(--acc)}
@@ -46,6 +49,12 @@ a{color:var(--acc)}
 summary{cursor:pointer}
 .sm{display:flex;gap:8px;margin-top:8px}
 .sm button{padding:8px 12px;font-size:14px}
+input[type=number]{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--tx);text-align:center;margin-top:4px}
+label{display:block;text-align:center;font-size:14px}
+.adj{display:flex;align-items:center;gap:12px}
+.adj button{width:48px;padding:8px 0}
+.adj b{min-width:28px;text-align:center}
+#msg .sm{justify-content:center;flex-wrap:wrap}
 .msg{color:var(--acc);font-size:14px;min-height:20px;margin-top:6px;text-align:center}
 </style>
 </head>
@@ -64,6 +73,14 @@ summary{cursor:pointer}
   <div class="msg" id="msg"></div>
   <button class="finish" id="finish">Завершить игру и записать победу</button>
 </div>
+<details class="card" id="edit">
+  <summary>Править результаты вручную</summary>
+  <div class="mut" style="margin:10px 0 2px">Победы команд</div>
+  <div id="adjw"></div>
+  <div class="mut" style="margin:14px 0 2px">Счёт текущей игры</div>
+  <div id="adjs"></div>
+  <div class="msg" id="emsg"></div>
+</details>
 <h2>Составы</h2>
 <div id="roster"></div>
 <details class="card">
@@ -78,6 +95,11 @@ summary{cursor:pointer}
 </main>
 <script src="basketball-config.js"></script>
 <script>
+var TG=window.Telegram&&Telegram.WebApp;
+if(TG&&TG.initData){
+  document.documentElement.classList.add('tg');
+  try{TG.ready();TG.expand();TG.setHeaderColor('#0A0A0A');TG.setBackgroundColor('#0A0A0A');if(TG.disableVerticalSwipes)TG.disableVerticalSwipes()}catch(e){}
+}
 var EMB=(top!==self)||/[?&]app/.test(location.search);
 document.getElementById('back').href=EMB?'media.html?app=1':'media.html';document.getElementById('logo').href=EMB?'index.html?app=1':'index.html';
 var C=window.CONFIG||{};
@@ -86,7 +108,7 @@ var SYNC=!!BASE;
 var EURL=BASE+'/rooms/'+encodeURIComponent(C.ROOM||'saturday')+'/events.json';
 var LKEY='bb-events-v2';
 var COL={w:'#f5f5f5',b:'#222',r:'#d62828'};
-var remote=[],pending=[],sent={},busy=false,S=null,last='',lastR='\u0000';
+var remote=[],pending=[],sent={},busy=false,S=null,last='',lastR='\u0000',lastP='';
 function $(i){return document.getElementById(i)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
@@ -97,24 +119,32 @@ function setSt(ok){var s=$('st');s.textContent=SYNC?(ok?'● онлайн':'● 
 
 // Состояние целиком восстанавливается из журнала событий
 function build(){
-  var seen={},St={names:{w:'Белые',b:'Чёрные',r:'Красные'},cur:{a:'w',b:'b',sa:0,sb:0},games:[],roster:null};
+  var seen={},St={names:{w:'Белые',b:'Чёрные',r:'Красные'},cur:{a:'w',b:'b',sa:0,sb:0},games:[],roster:null,adj:[],w:{w:0,b:0,r:0},td:{w:0,b:0,r:0}};
   remote.concat(pending).forEach(function(e){
     if(seen[e.id])return;seen[e.id]=1;
     var c=St.cur;
     if(e.t==='score'){var k=e.s==='a'?'sa':'sb';c[k]=Math.max(0,c[k]+e.n)}
     else if(e.t==='teams'){c.a=e.a;c.b=e.b}
     else if(e.t==='finish'){
-      if(c.sa===c.sb||c.a===c.b)return;
-      St.games.push({a:c.a,b:c.b,sa:c.sa,sb:c.sb,d:e.d});
-      var win=c.sa>c.sb?c.a:c.b;
+      if(c.a===c.b)return;
+      var dr=c.sa===c.sb;
+      if(dr&&!e.dr)return;
+      St.games.push({a:c.a,b:c.b,sa:c.sa,sb:c.sb,d:e.d,dr:dr});
       var third=['w','b','r'].filter(function(k){return k!==c.a&&k!==c.b})[0];
-      St.cur={a:win,b:third,sa:0,sb:0};
+      /* победа: победитель остаётся; ничья: остаётся команда Б, команда А уступает место третьей */
+      St.cur=dr?{a:c.b,b:third,sa:0,sb:0}:{a:(c.sa>c.sb?c.a:c.b),b:third,sa:0,sb:0};
     }
+    else if(e.t==='adj'){St.adj.push({k:e.k,n:e.n,d:e.d})}
+    else if(e.t==='setscore'){c.sa=e.sa;c.sb=e.sb}
     else if(e.t==='undo'){var g=St.games.pop();if(g)St.cur={a:g.a,b:g.b,sa:g.sa,sb:g.sb}}
     else if(e.t==='roster'){St.roster=e.r;for(var k2 in e.r.teams)St.names[k2]=e.r.teams[k2].name}
   });
+  var tdate=today();
+  St.games.forEach(function(g){winners(g).forEach(function(k){St.w[k]++;if(g.d===tdate)St.td[k]++})});
+  St.adj.forEach(function(x){St.w[x.k]+=x.n;if(x.d===tdate)St.td[x.k]+=x.n});
   return St;
 }
+function winners(g){return g.dr?[g.a,g.b]:[g.sa>g.sb?g.a:g.b]}
 
 function send(ev){
   ev.id=uid();
@@ -144,8 +174,7 @@ function render(){
   var key=JSON.stringify(S);
   if(key===last)return;
   last=key;
-  var w={w:0,b:0,r:0},td={w:0,b:0,r:0},tdate=today();
-  S.games.forEach(function(g){var k=g.sa>g.sb?g.a:g.b;w[k]++;if(g.d===tdate)td[k]++});
+  var w=S.w,td=S.td;
   $('wins').innerHTML=['w','b','r'].map(function(k){return '<div class="card win">'+dot(k)+esc(S.names[k])+'<b>'+w[k]+'</b><span class="mut">сегодня: '+td[k]+'</span></div>'}).join('');
   var c=S.cur;
   function opts(sel){return ['w','b','r'].map(function(k){return '<option value="'+k+'"'+(k===sel?' selected':'')+'>'+esc(S.names[k])+'</option>'}).join('')}
@@ -155,15 +184,27 @@ function render(){
     '<button class="minus" data-add="'+id+'" data-n="-1">−1</button></div></div>';
   }
   $('game').innerHTML=side('a',c.a,c.sa)+side('b',c.b,c.sb);
-  var by={};
-  S.games.forEach(function(g,i){(by[g.d]=by[g.d]||[]).push([g,i])});
-  var ds=Object.keys(by).sort().reverse();
+  var by={},ab={};
+  S.games.forEach(function(g){(by[g.d]=by[g.d]||[]).push(g)});
+  S.adj.forEach(function(x){(ab[x.d]=ab[x.d]||[]).push(x)});
+  var dm={};Object.keys(by).concat(Object.keys(ab)).forEach(function(d){dm[d]=1});
+  var ds=Object.keys(dm).sort().reverse();
   $('hist').innerHTML=ds.length?ds.map(function(d){
     var cnt={w:0,b:0,r:0};
-    by[d].forEach(function(x){var g=x[0];cnt[g.sa>g.sb?g.a:g.b]++});
+    (by[d]||[]).forEach(function(g){winners(g).forEach(function(k){cnt[k]++})});
+    (ab[d]||[]).forEach(function(x){cnt[x.k]+=x.n});
     return '<div class="card"><b>'+esc(fmt(d))+'</b><div class="mut">'+['w','b','r'].map(function(k){return esc(S.names[k])+' '+cnt[k]}).join(' · ')+'</div>'+
-    by[d].slice().reverse().map(function(x){var g=x[0];return '<div class="row"><span>'+dot(g.a)+esc(S.names[g.a])+' — '+dot(g.b)+esc(S.names[g.b])+'</span><b>'+g.sa+':'+g.sb+'</b></div>'}).join('')+'</div>';
+    (by[d]||[]).slice().reverse().map(function(g){return '<div class="row"><span>'+dot(g.a)+esc(S.names[g.a])+' — '+dot(g.b)+esc(S.names[g.b])+(g.dr?' <span class="mut">· ничья</span>':'')+'</span><b>'+g.sa+':'+g.sb+'</b></div>'}).join('')+
+    (ab[d]||[]).map(function(x){return '<div class="row"><span class="mut">✎ правка: '+dot(x.k)+esc(S.names[x.k])+'</span><b>'+(x.n>0?'+':'')+x.n+'</b></div>'}).join('')+'</div>';
   }).join(''):'<div class="card mut">Пока нет сыгранных игр</div>';
+  $('adjw').innerHTML=['w','b','r'].map(function(k){
+    return '<div class="row"><span>'+dot(k)+esc(S.names[k])+'</span><span class="adj"><button data-adj="'+k+'" data-n="-1">−</button><b>'+w[k]+'</b><button data-adj="'+k+'" data-n="1">+</button></span></div>';
+  }).join('');
+  var pk=c.a+c.b+S.names[c.a]+S.names[c.b];
+  if(pk!==lastP){
+    lastP=pk;
+    $('adjs').innerHTML='<div class="game"><label>'+dot(c.a)+esc(S.names[c.a])+'<input type="number" inputmode="numeric" min="0" id="in-sa" value="'+c.sa+'"></label><label>'+dot(c.b)+esc(S.names[c.b])+'<input type="number" inputmode="numeric" min="0" id="in-sb" value="'+c.sb+'"></label></div><button class="finish" id="setsc">Задать счёт</button>';
+  }
   var rk=JSON.stringify(S.roster);
   if(rk!==lastR){
     lastR=rk;
@@ -192,9 +233,29 @@ function parse(txt){
   return Object.keys(teams).length===3?{title:title,teams:teams}:null;
 }
 
+function ask(text,cb){
+  if(TG&&TG.initData&&TG.showConfirm){TG.showConfirm(text,cb)}else{cb(confirm(text))}
+}
 document.addEventListener('click',function(e){
   var t=e.target.closest('button[data-add]');
-  if(t){$('msg').textContent='';send({t:'score',s:t.dataset.add,n:Number(t.dataset.n)})}
+  if(t){$('msg').textContent='';send({t:'score',s:t.dataset.add,n:Number(t.dataset.n)});return}
+  t=e.target.closest('button[data-adj]');
+  if(t){
+    var k=t.dataset.adj,n=Number(t.dataset.n);
+    if(S.w[k]+n<0){$('emsg').textContent='Побед не может быть меньше нуля.';return}
+    $('emsg').textContent='';send({t:'adj',k:k,n:n,d:today()});return;
+  }
+  if(e.target.closest('button[data-draw]')){
+    var c=S.cur,third=['w','b','r'].filter(function(k){return k!==c.a&&k!==c.b})[0];
+    $('msg').textContent='Ничья: по очку '+S.names[c.a]+' и '+S.names[c.b]+'. Следующая игра: '+S.names[c.b]+' — '+S.names[third]+'.';
+    send({t:'finish',d:today(),dr:true});return;
+  }
+  if(e.target.closest('button[data-cancel]')){$('msg').textContent='';return}
+  if(e.target.id==='setsc'){
+    var a=parseInt($('in-sa').value,10),b=parseInt($('in-sb').value,10);
+    if(!(a>=0&&b>=0&&a<=999&&b<=999)){$('emsg').textContent='Введите счёт числами от 0 до 999.';return}
+    $('emsg').textContent='Счёт обновлён.';send({t:'setscore',sa:a,sb:b});
+  }
 });
 document.addEventListener('change',function(e){
   var s=e.target.dataset&&e.target.dataset.s;if(!s)return;
@@ -204,16 +265,21 @@ document.addEventListener('change',function(e){
 });
 $('finish').onclick=function(){
   var c=S.cur;
-  if(c.sa===c.sb){$('msg').textContent='Ничья — продолжайте игру, победитель должен определиться.';return}
+  if(c.sa===c.sb){
+    $('msg').innerHTML='Счёт равный '+c.sa+':'+c.sb+'. Записать ничью?<div class="sm"><button data-draw="1">Ничья: по очку обеим</button><button data-cancel="1">Продолжить игру</button></div>';
+    return;
+  }
   var win=c.sa>c.sb?c.a:c.b,third=['w','b','r'].filter(function(k){return k!==c.a&&k!==c.b})[0];
   $('msg').textContent='Победили: '+S.names[win]+'. Следующая игра: '+S.names[win]+' — '+S.names[third]+'.';
   send({t:'finish',d:today()});
 };
 $('undo').onclick=function(){if(S.games.length){$('msg').textContent='';send({t:'undo'})}};
 $('reset').onclick=function(){
-  if(!confirm('Удалить все игры, победы и составы? Это увидят все устройства.'))return;
-  if(!SYNC){remote=[];try{localStorage.removeItem(LKEY)}catch(e){}render();return}
-  pending=[];fetch(EURL,{method:'DELETE'}).then(refresh).catch(function(){setSt(false)});
+  ask('Удалить все игры, победы и составы? Это увидят все устройства.',function(ok){
+    if(!ok)return;
+    if(!SYNC){remote=[];try{localStorage.removeItem(LKEY)}catch(e){}render();return}
+    pending=[];fetch(EURL,{method:'DELETE'}).then(refresh).catch(function(){setSt(false)});
+  });
 };
 $('rload').onclick=function(){
   var r=parse($('rt').value);
