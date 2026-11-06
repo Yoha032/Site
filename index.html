@@ -255,12 +255,15 @@ return fetch(u,ac?{signal:ac.signal}:{}).then(function(r){clearTimeout(t);if(!r.
 function getTree(){var g=ghInfo();if(!g)return Promise.resolve(null);
 var c=S.g("as:tree");if(c&&c.k===g.o+"/"+g.r&&Date.now()-c.t<120000)return Promise.resolve(c.f);
 return fetchT("https://api.github.com/repos/"+g.o+"/"+g.r+"/git/trees/HEAD?recursive=1",6000).then(function(j){
+if(j.truncated)throw 0;
 var f=(j.tree||[]).filter(function(x){return x.type==="blob"&&/^podcasts\/[^\/]+\/.+\.(mp3|m4a)$/i.test(x.path)}).map(function(x){return x.path});
 S.s("as:tree",{k:g.o+"/"+g.r,t:Date.now(),f:f});return f}).catch(function(){return c?c.f:null})}
 function addedDate(p){var g=ghInfo(),m=S.g("as:fd")||{};if(m[p]!==undefined)return Promise.resolve(m[p]);if(!g)return Promise.resolve("");
 return fetchT("https://api.github.com/repos/"+g.o+"/"+g.r+"/commits?per_page=1&path="+encodeURIComponent(p),6000).then(function(j){
 var d=j&&j[0]&&j[0].commit&&j[0].commit.committer?String(j[0].commit.committer.date).slice(0,10):"";if(d){m[p]=d;S.s("as:fd",m)}return d}).catch(function(){return ""})}
 function mergeTree(c,files){var have={},by={},jobs=[];
+/* Файлы, которых уже нет в репозитории, убираем из списка (если mp3 лежат на самом сайте, а не на внешнем хостинге) */
+if(!c.base){var ex={};files.forEach(function(p){ex[nfc(p)]=1});c.folders.forEach(function(f){f.episodes=(f.episodes||[]).filter(function(e){return ex[nfc(e.file||"")]})})}
 c.folders.forEach(function(f){by[nfc(f.name)]=f;f.episodes.forEach(function(e){have[nfc(e.file)]=1})});
 files.forEach(function(p){if(have[nfc(p)])return;var m=/^podcasts\/([^\/]+)\/(.+)\.(mp3|m4a)$/i.exec(p);if(!m)return;
 var f=by[nfc(m[1])];if(!f){f={name:nfc(m[1]),episodes:[]};c.folders.push(f);by[nfc(m[1])]=f}
