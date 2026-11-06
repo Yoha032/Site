@@ -92,6 +92,7 @@ details[open] summary::after{transform:rotate(90deg)}
 .tick{margin-top:24px;overflow:hidden;border-block:1px solid var(--ln);padding:10px 0;white-space:nowrap}
 .trk{display:inline-block;animation:mq 30s linear infinite;color:var(--ac);font:700 14px Unbounded,sans-serif;letter-spacing:.08em}
 @keyframes mq{to{transform:translateX(-50%)}}
+a.tick{display:block;color:inherit;text-decoration:none;cursor:pointer;transition:background .2s}a.tick:hover{background:#161616}a.tick:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .note{color:var(--mu);font-size:12px;text-align:center;margin-top:12px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
 .col{display:flex;flex-direction:column;gap:16px}
@@ -145,24 +146,6 @@ html.emb .vt{display:none!important}
 .dg-btn.fill{background:var(--ac);color:#0A0A0A}
 .dg-btn:disabled{opacity:.5;cursor:default}
 @media (hover:hover){.dg-btn:not(:disabled):hover{background:var(--ac);color:#0A0A0A}}
-.dg-dead{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--ln)}
-.dg-dead.show{display:block}
-.dg-dead label{display:block;color:var(--mu);font-size:14px;margin-bottom:8px}
-.dg-dead label b{color:var(--ac);font:700 16px Unbounded,sans-serif}
-.dg-fr{display:flex;gap:8px;margin-bottom:10px}
-.dg-fr input{flex:1;min-width:0;height:48px;padding:0 18px;border-radius:24px;border:2px solid var(--ln);background:#0A0A0A;color:var(--tx);font:600 16px Manrope,sans-serif}
-.dg-fr input:focus{outline:none;border-color:var(--ac)}
-.dg-msg{min-height:18px;margin-top:6px;color:var(--ac);font-size:13px}
-.dg-msg.err{color:#FF6A5E}
-.dg-lbt{margin:14px 0 4px}
-.dg-note{margin:0 0 6px;color:var(--mu);font-size:12px}
-.dg-lb{list-style:none;margin:0;padding:0}
-.dg-lb li{display:flex;gap:10px;align-items:baseline;padding:11px 8px;border-top:1px solid var(--ln);font-size:14px}
-.dg-lb li.me{background:#1f1f1f;border-radius:10px}
-.dg-lb li.empty{display:block;color:var(--mu);text-align:center}
-.dg-lb .n{flex:none;width:30px;color:var(--mu);text-align:right}
-.dg-lb .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dg-lb .sc{flex:none;color:var(--ac);font:700 13px Unbounded,sans-serif}
 
 </style>
 </head>
@@ -188,23 +171,12 @@ html.emb .vt{display:none!important}
 <img class="adimg rv" style="--i:8" src="ad.jpg" width="1000" height="500" alt="Реклама: генерация контента для вашего бренда, съёмки, интервью, подкасты, организация и проведение мероприятий">
 <section class="dg rv" id="potehe" style="--i:9" aria-labelledby="dg-h">
 <h2 class="dg-h" id="dg-h">ПОТЕХЕ <span>ЧАС</span></h2>
-<p class="dg-sub">Помоги Андрею убежать от нечисти: продержись подольше и попади в топ.</p>
+<p class="dg-sub">Помоги Андрею убежать от нечисти: продержись подольше и побей свой рекорд.</p>
 <canvas class="dg-cv" id="dg-cv" width="900" height="320" tabindex="0" aria-label="Игра: Андрей бежит от нечисти. Прыжок: пробел или стрелка вверх, пригнуться: стрелка вниз."></canvas>
 <div class="dg-touch"><button class="dg-btn fill" id="dg-jump" type="button" tabindex="-1">⬆ Прыжок</button><button class="dg-btn" id="dg-duck" type="button" tabindex="-1">⬇ Пригнуться</button></div>
-<div class="dg-dead" id="dg-dead">
-<form id="dg-form" autocomplete="off">
-<label for="dg-name">Твой результат: <b id="dg-final">0</b>. Впиши имя в таблицу лидеров</label>
-<div class="dg-fr"><input id="dg-name" type="text" maxlength="12" placeholder="Твоё имя" enterkeyhint="send"><button class="dg-btn fill" id="dg-save" type="submit">Записать</button></div>
-</form>
-<button class="dg-btn" id="dg-again" type="button">Ещё раз</button>
-</div>
-<div class="dg-msg" id="dg-msg" role="status"></div>
-<div class="lbl dg-lbt">ТОП-10</div>
-<p class="dg-note" id="dg-note"></p>
-<ol class="dg-lb" id="dg-lb"></ol>
 </section>
 </div>
-<div class="tick" aria-hidden="true"><div class="trk" id="trk"></div></div>
+<a class="tick" href="media.html" aria-label="Мои работы: видеоотчёты, интервью, шоу"><div class="trk" id="trk" aria-hidden="true"></div></a>
 </main>
 <script>
 var MID=0; /* номер счётчика Яндекс Метрики: замените 0 на свой */
@@ -309,7 +281,7 @@ S.s("as:tree",{k:g.o+"/"+g.r,t:Date.now(),f:f});return f}).catch(function(){retu
 function addedDate(p){var g=ghInfo(),m=S.g("as:fd")||{};if(m[p]!==undefined)return Promise.resolve(m[p]);if(!g)return Promise.resolve("");
 return fetchT("https://api.github.com/repos/"+g.o+"/"+g.r+"/commits?per_page=1&path="+encodeURIComponent(p),6000).then(function(j){
 var d=j&&j[0]&&j[0].commit&&j[0].commit.committer?String(j[0].commit.committer.date).slice(0,10):"";if(d){m[p]=d;S.s("as:fd",m)}return d}).catch(function(){return ""})}
-function mergeTree(c,files){var have={},by={},jobs=[];
+function mergeTree(c,files){var have={},by={},jobs=[];if(!c.base){var inT={};files.forEach(function(p){inT[nfc(p)]=1});c.folders.forEach(function(f){f.episodes=f.episodes.filter(function(e){return !/^podcasts\//i.test(nfc(e.file||""))||inT[nfc(e.file)]})})}
 c.folders.forEach(function(f){by[nfc(f.name)]=f;f.episodes.forEach(function(e){have[nfc(e.file)]=1})});
 files.forEach(function(p){if(have[nfc(p)])return;var m=/^podcasts\/([^\/]+)\/(.+)\.(mp3|m4a)$/i.exec(p);if(!m)return;
 var f=by[nfc(m[1])];if(!f){f={name:nfc(m[1]),episodes:[]};c.folders.push(f);by[nfc(m[1])]=f}
@@ -321,7 +293,7 @@ var c=a[0],t=a[1];if(!c&&!t){init(DEMO,false);return}
 c=c||{base:"",folders:[{name:"Интервью",episodes:[]},{name:"Подкасты",episodes:[]},{name:"Эфиры",episodes:[]}]};
 return(t?mergeTree(c,t):Promise.resolve(c)).then(function(m){init(m,true)})}).catch(function(){init(DEMO,false)});
 $("trk2").textContent=("НА ДАННОМ САЙТЕ ПРЕДСТАВЛЕНЫ ЗАПИСИ ЭФИРОВ · ").repeat(8);
-$("trk").textContent=("ПОДКАСТЫ · ИНТЕРВЬЮ · ЭФИРЫ · [ВАШ ПРОЕКТ] · ").repeat(8);
+$("trk").textContent=("МОИ РАБОТЫ → · ПОДКАСТЫ · ИНТЕРВЬЮ · ЭФИРЫ · [ВАШ ПРОЕКТ] · ").repeat(8);
 var dp=null;addEventListener("beforeinstallprompt",function(e){e.preventDefault();dp=e});
 if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)$("inst").hidden=true;
 $("ins").onclick=function(){G("install");if(dp){dp.prompt();dp=null;return}var h=$("ih");h.hidden=false;
@@ -333,23 +305,13 @@ if("serviceWorker" in navigator&&location.protocol.indexOf("http")==0){navigator
 (function () {
 'use strict';
 
-/* ===== «Потехе час»: настройки таблицы лидеров =====
-   Чтобы результаты видели все посетители, заполни два поля из Supabase
-   (Project Settings → API) и выполни leaderboard-setup.sql (см. README).
-   Пока поля пустые, рекорды хранятся только в браузере посетителя. */
-var CONFIG = {
-  SUPABASE_URL: '',        // например 'https://abcd1234.supabase.co'
-  SUPABASE_ANON_KEY: '',   // публичный anon-ключ
-  TABLE: 'scores',
-  TOP: 10
-};
-
-var DATA = {"palette":{"K":"#14111c","S":"#eaa670","G":"#8f8f98","g":"#6f6f78","R":"#d93c3c","B":"#3f68b5","D":"#2e4d8f","L":"#8fbbee","W":"#f4f1ea","T":"#a3a9b3","Y":"#f2d25a","P":"#6d4527","O":"#ec8a22","N":"#8b5b2e","Z":"#68ad5e","z":"#3e7a46","F":"#fff0a0","f":"#fff0a07a","J":"#3b3752","u":"#4d5780","y":"#4c3a6e","x":"#2e2248","k":"#5a586c"},"player":{"body":["......KK.KKK........",".....KKKKKKKKK......","....KKKKKKKKKKK.....","....KKKKKKKKKKK.....","....KKSSSSSSSKK.....","....SSSSSSSSSSS.....","...SSSKSSSSSKSSS....","...SSSSSSSSSSSSS....","....SSKKKKKKKSS.....","....SSSKKKKKSSS.....",".....SSSSSSSSS......",".......SSSSS........","...GGGGGGGGGGGGG....","..GGGGGGGGGGGGGGG...","..GGGRGRRGRRGGGGG...","..SSGRRGRGRRGRGSS...","..SSGGRRGRRGGGGSS...","..SSGGGGGGGGGGGSS...","..SSGGGGGGGGGGGSS...","..SSGGGGGGGGGGGSS...","....BBBBBBBBBBB.....","....BBBBBBBBBBB....."],"legs":{"stand":[[4,22,5,6,"B"],[10,22,5,6,"B"],[3,28,6,2,"L"],[10,28,7,2,"L"]],"runA":[[10,22,5,6,"B"],[10,28,7,2,"L"],[4,22,5,4,"B"],[3,26,6,2,"L"]],"runB":[[4,22,5,6,"B"],[3,28,7,2,"L"],[10,22,5,4,"B"],[10,26,6,2,"L"]],"jump":[[4,22,5,5,"B"],[4,27,6,2,"L"],[10,22,5,3,"B"],[10,25,7,2,"L"]]}},"obstacles":[{"name":"scarecrow","rows":["....PPPPPPPP......","....PPPPPPPP......","..PPPPPPPPPPPP....","..YYSSSSSSSSYY....",".YYYSKSSSSKSYYY...","..YYSSSSSSSSYY....","...YSSKKKKSSY.....","......SSSS........",".......NN.........","..OOOOOOOOOOOO....","YYOOOOOOOOOOOOYY..","Y.Y.OOOOOOOO.Y.Y..","....OOBBOOOO......","....OOBBOOOO......","....OOOOOORR......","....OOOOOORR......","....OOOOOOOO......","...YYYYYYYYYY.....","....Y.YYYY.Y......",".......NN.........",".......NN.........",".......NN.........",".......NN.........",".......NN.........",".......NN.........",".......NN........."],"hit":[[3,0,10,18],[6,18,4,8]],"minScore":0,"weight":3,"air":0,"extra":0,"bob":0},{"name":"cat","rows":["..................................",".............KK...KK..............",".............KK...KK..............",".............KkKKKKk..............",".............KKKKKKK..............","ff...........KYKKKYK..............","ffff.........KKKKKKK......kk......","ffffffFTTTT..KKKKKKK......KK......","ffffffFTTTT..KKKKKKK......KK......","ffff.....TT....KKKKKKKKK..KK......","ff.......TTKKKKKKKKKKKKK..KK......",".........TTKKKKKKKKKKKKK..KK......",".........TT....KKKKKKKKK..KK......",".........TT....KKKKKKKKK..KK......",".........TT....KKKKKKKKKKKKK......",".........TT....KKKKKKKKKKKKK......",".........TT....KKKKKKKKK..........",".........RRRRRRRRRRRRRRRRRR.......",".......KKRRRRRRRRRRRRRRRRRRKK.....","......KTTK................KTTK....",".....KTTTTK..............KTTTTK...",".....KTTTTK..............KTTTTK...","......KTTK................KTTK....",".......KK..................KK....."],"hit":[[7,1,24,23]],"minScore":0,"weight":3,"air":0,"extra":1,"bob":0},{"name":"frank","rows":[".....KKKKKKKKK......",".....KKKKKKKKK......",".....KKKKKKKKK......",".....ZZzzzZZZZ......",".....ZKWZZZKWZ......",".....ZZZZZZZZZ......","....TZZZZZZZZZT.....",".....ZZZZzZZZZ......",".....ZZKKKKKZZ......",".....ZZZZZZZZZ......","......ZZZZZZZ.......",".......ZZZZZ........","...JJJJJJJJJJJJ.....","...JJJJJJJJJJJJ.....","ZZZZJJJJJJJJJJ......","ZZZZJJJJJJJJJJ......","....JJJJJJJJJJ......","....JJJJJJJJJJ......","....JJJJJJJJJJ......","....uuuuuuuuuu......","....uuuuuuuuuu......","....uuuu..uuuu......","....uuuu..uuuu......","....uuuu..uuuu......","...KKKKK..KKKKK.....","...KKKKK..KKKKK....."],"hit":[[4,0,11,26],[0,14,4,2]],"minScore":60,"weight":3,"air":0,"extra":0,"bob":0},{"name":"ghost","rows":["......WWWWWWWW......","....WWWWWWWWWWWW....","...WWWWWWWWWWWWWW...","...WWWWWWWWWWWWWW...","..WWWWWWWWWWWWWWWW..","..WWWWKKWWWWKKWWWW..","..WWWWKKWWWWKKWWWW..","..WWWWWWWWWWWWWWWW..","..WWWWWWWKKWWWWWWW..","..WWWWWWKKKKWWWWWW..","..WWWWWWWKKWWWWWWW..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWW.WWWWW.WWWWTT..","..WW...WWW...WWW.T.."],"hit":[[3,1,14,19]],"minScore":150,"weight":2,"air":58,"extra":0,"bob":5},{"name":"skeleton","rows":["............WWWWWW................","...........WWWWWWWW...............","...........WKKWWKKW...............","...........WWWWKWWW...............","...........WKWKWKWW...............","............WWWWWW................","...............TWTWTW.............","...............WTWTWT.............","......KKKWWWWWWWWTWTW.............","........T......WTWTWT.............","...FFF..T.........WWWWWWW.........","...FFF..T..RRRWWWWWKKKKKKKKK......","...FFF..T..RRWWRRRRKKKKKKKKK......","....KKKKTK.RRWWRRRRR....KKKKKK....","...KKKKKTKK..WWTTTTTTT.KKKKKKKK...","..KKKKKKTKKK.WWTTTTTTTKKKKKKKKKK..","..KKKKTTTKKK.WWTTTTTTTKKKKTTKKKK..","..KKKTTTTTTTKKKKTTTTTTTTTTTTTKKK..","..KKKTTTTTTTTTTTTTTTTTTTTTTTTKKK..","..KKKKTTKKKK..........KKKKTTKKKK..","..KKKKKKKKKK..........KKKKKKKKKK..","...KKKKKKKK............KKKKKKKK...","....KKKKKK..............KKKKKK...."],"hit":[[2,12,30,11],[11,0,12,12]],"minScore":300,"weight":2,"air":0,"extra":3.5,"bob":0}],"decor":{"tomb":["..yyyyy..",".yyyyyyy.","yyyyyyyyy","yyyyxyyyy","yyyxxxyyy","yyyyxyyyy","yyyyxyyyy","yyyyyyyyy","yyyyyyyyy","yyyyyyyyy","yyyyyyyyy"],"pumpkin":["....zz.....","..OOOzOOO..",".OOOOOOOOO.","OOFFOOOFFOO","OOOFOOOFOOO","OOOOOOOOOOO","OOFOFOFOFOO",".OOFFFFFOO.","..OOOOOOO.."]}};
+/* «Потехе час»: мини-игра внизу страницы */
+var DATA = {"palette":{"K":"#14111c","S":"#eaa670","G":"#8f8f98","g":"#6f6f78","R":"#d93c3c","B":"#3f68b5","D":"#2e4d8f","L":"#8fbbee","W":"#f4f1ea","T":"#a3a9b3","Y":"#f2d25a","P":"#6d4527","O":"#ec8a22","N":"#8b5b2e","Z":"#68ad5e","z":"#3e7a46","F":"#fff0a0","f":"#fff0a07a","J":"#3b3752","u":"#4d5780","y":"#4c3a6e","x":"#2e2248","k":"#5a586c"},"player":{"body":["......KK.KKK........",".....KKKKKKKKK......","....KKKKKKKKKKK.....","....KKKKKKKKKKK.....","....KKSSSSSSSKK.....","....SSSSSSSSSSS.....","...SSSKSSSSSKSSS....","...SSSSSSSSSSSSS....","....SSKKKKKKKSS.....","....SSSKKKKKSSS.....",".....SSSSSSSSS......",".......SSSSS........","...GGGGGGGGGGGGG....","..GGGGGGGGGGGGGGG...","..GGGRGRRGRRGGGGG...","..SSGRRGRGRRGRGSS...","..SSGGRRGRRGGGGSS...","..SSGGGGGGGGGGGSS...","..SSGGGGGGGGGGGSS...","..SSGGGGGGGGGGGSS...","....BBBBBBBBBBB.....","....BBBBBBBBBBB....."],"legs":{"stand":[[4,22,5,6,"B"],[10,22,5,6,"B"],[3,28,6,2,"L"],[10,28,7,2,"L"]],"runA":[[10,22,5,6,"B"],[10,28,7,2,"L"],[4,22,5,4,"B"],[3,26,6,2,"L"]],"runB":[[4,22,5,6,"B"],[3,28,7,2,"L"],[10,22,5,4,"B"],[10,26,6,2,"L"]],"jump":[[4,22,5,5,"B"],[4,27,6,2,"L"],[10,22,5,3,"B"],[10,25,7,2,"L"]]}},"obstacles":[{"name":"scarecrow","rows":["....PPPPPPPP......","....PPPPPPPP......","..PPPPPPPPPPPP....","..YYSSSSSSSSYY....",".YYYSKSSSSKSYYY...","..YYSSSSSSSSYY....","...YSSKKKKSSY.....","......SSSS........",".......NN.........","..OOOOOOOOOOOO....","YYOOOOOOOOOOOOYY..","Y.Y.OOOOOOOO.Y.Y..","....OOBBOOOO......","....OOBBOOOO......","....OOOOOORR......","....OOOOOORR......","....OOOOOOOO......","...YYYYYYYYYY.....","....Y.YYYY.Y......",".......NN.........",".......NN.........",".......NN.........",".......NN.........",".......NN.........",".......NN.........",".......NN........."],"hit":[[3,0,10,18],[6,18,4,8]],"minScore":0,"weight":3,"air":0,"extra":0,"bob":0},{"name":"cat","rows":["..................................",".............KK...KK..............",".............KK...KK..............",".............KkKKKKk..............",".............KKKKKKK..............","ff...........KYKKKYK..............","ffff.........KKKKKKK......kk......","ffffffFTTTT..KKKKKKK......KK......","ffffffFTTTT..KKKKKKK......KK......","ffff.....TT....KKKKKKKKK..KK......","ff.......TTKKKKKKKKKKKKK..KK......",".........TTKKKKKKKKKKKKK..KK......",".........TT....KKKKKKKKK..KK......",".........TT....KKKKKKKKK..KK......",".........TT....KKKKKKKKKKKKK......",".........TT....KKKKKKKKKKKKK......",".........TT....KKKKKKKKK..........",".........RRRRRRRRRRRRRRRRRR.......",".......KKRRRRRRRRRRRRRRRRRRKK.....","......KTTK................KTTK....",".....KTTTTK..............KTTTTK...",".....KTTTTK..............KTTTTK...","......KTTK................KTTK....",".......KK..................KK....."],"hit":[[9,3,19,21]],"minScore":0,"weight":3,"air":0,"extra":1,"bob":0},{"name":"frank","rows":[".....KKKKKKKKK......",".....KKKKKKKKK......",".....KKKKKKKKK......",".....ZZzzzZZZZ......",".....ZKWZZZKWZ......",".....ZZZZZZZZZ......","....TZZZZZZZZZT.....",".....ZZZZzZZZZ......",".....ZZKKKKKZZ......",".....ZZZZZZZZZ......","......ZZZZZZZ.......",".......ZZZZZ........","...JJJJJJJJJJJJ.....","...JJJJJJJJJJJJ.....","ZZZZJJJJJJJJJJ......","ZZZZJJJJJJJJJJ......","....JJJJJJJJJJ......","....JJJJJJJJJJ......","....JJJJJJJJJJ......","....uuuuuuuuuu......","....uuuuuuuuuu......","....uuuu..uuuu......","....uuuu..uuuu......","....uuuu..uuuu......","...KKKKK..KKKKK.....","...KKKKK..KKKKK....."],"hit":[[4,0,11,26],[0,14,4,2]],"minScore":60,"weight":3,"air":0,"extra":0,"bob":0},{"name":"ghost","rows":["......WWWWWWWW......","....WWWWWWWWWWWW....","...WWWWWWWWWWWWWW...","...WWWWWWWWWWWWWW...","..WWWWWWWWWWWWWWWW..","..WWWWKKWWWWKKWWWW..","..WWWWKKWWWWKKWWWW..","..WWWWWWWWWWWWWWWW..","..WWWWWWWKKWWWWWWW..","..WWWWWWKKKKWWWWWW..","..WWWWWWWKKWWWWWWW..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWW.WWWWW.WWWWTT..","..WW...WWW...WWW.T.."],"hit":[[3,1,14,19]],"minScore":150,"weight":2,"air":58,"extra":0,"bob":5},{"name":"skeleton","rows":["............WWWWWW................","...........WWWWWWWW...............","...........WKKWWKKW...............","...........WWWWKWWW...............","...........WKWKWKWW...............","............WWWWWW................","...............TWTWTW.............","...............WTWTWT.............","......KKKWWWWWWWWTWTW.............","........T......WTWTWT.............","...FFF..T.........WWWWWWW.........","...FFF..T..RRRWWWWWKKKKKKKKK......","...FFF..T..RRWWRRRRKKKKKKKKK......","....KKKKTK.RRWWRRRRR....KKKKKK....","...KKKKKTKK..WWTTTTTTT.KKKKKKKK...","..KKKKKKTKKK.WWTTTTTTTKKKKKKKKKK..","..KKKKTTTKKK.WWTTTTTTTKKKKTTKKKK..","..KKKTTTTTTTKKKKTTTTTTTTTTTTTKKK..","..KKKTTTTTTTTTTTTTTTTTTTTTTTTKKK..","..KKKKTTKKKK..........KKKKTTKKKK..","..KKKKKKKKKK..........KKKKKKKKKK..","...KKKKKKKK............KKKKKKKK...","....KKKKKK..............KKKKKK...."],"hit":[[2,12,30,11],[11,0,12,12]],"minScore":300,"weight":2,"air":0,"extra":3.5,"bob":0}],"decor":{"tomb":["..yyyyy..",".yyyyyyy.","yyyyyyyyy","yyyyxyyyy","yyyxxxyyy","yyyyxyyyy","yyyyxyyyy","yyyyyyyyy","yyyyyyyyy","yyyyyyyyy","yyyyyyyyy"],"pumpkin":["....zz.....","..OOOzOOO..",".OOOOOOOOO.","OOFFOOOFFOO","OOOFOOOFOOO","OOOOOOOOOOO","OOFOFOFOFOO",".OOFFFFFOO.","..OOOOOOO.."]}};
 
 var H = 320, W = 900, WIDE = 900, NARROW = 564, GROUND = 272, P = 3, DUCK = 0.58, PX = 90, sx = 1;
-var GRAV = 0.78, JUMP_V = 14, V0 = 6.2, VMAX = 15, ACC = 0.0022;
+var GRAV = 0.78, JUMP_V = 15.5, V0 = 6.2, VMAX = 15, ACC = 0.0022;
 var PL_W = 20, PL_H = 30;
-var LS_BEST = 'as:dg:best', LS_NAME = 'as:dg:name', LS_SCORES = 'as:dg:scores';
+var LS_BEST = 'as:dg:best';
 
 var $ = function (id) { return document.getElementById(id); };
 var cv = $('dg-cv'), ctx = cv.getContext('2d');
@@ -453,7 +415,7 @@ function fit() {
 
 /* ---------- состояние игры ---------- */
 var state = 'ready', paused = false, visible = true;
-var speed, score, finalScore, distFar, distMid, distGround, sinceSpawn, nextGap, obstacles, animT, deadAt, best, submitted;
+var speed, score, finalScore, distFar, distMid, distGround, sinceSpawn, nextGap, obstacles, animT, deadAt, best;
 var pl = { y: 0, vy: 0, duck: false };
 var keys = { up: false, down: false };
 best = parseInt(store.get(LS_BEST) || '0', 10) || 0;
@@ -467,8 +429,7 @@ function reset() {
 function goal(n) { try { if (window.G) window.G(n); } catch (e) {} }
 
 function startRun() {
-  reset(); state = 'run'; submitted = false;
-  $('dg-dead').classList.remove('show'); setMsg('');
+  reset(); state = 'run';
   goal('game_start');
 }
 
@@ -476,19 +437,7 @@ function die() {
   state = 'dead'; deadAt = performance.now();
   finalScore = Math.floor(score);
   if (finalScore > best) { best = finalScore; store.set(LS_BEST, String(best)); }
-  $('dg-dead').classList.add('show');
-  var form = $('dg-form');
-  if (finalScore > 0) {
-    form.style.display = 'block';
-    $('dg-final').textContent = finalScore;
-    $('dg-save').disabled = false;
-    $('dg-name').value = store.get(LS_NAME) || '';
-    if (!window.matchMedia('(pointer:coarse)').matches) {
-      setTimeout(function () { if (state === 'dead' && !submitted) $('dg-name').focus({ preventScroll: true }); }, 500);
-    }
-  } else {
-    form.style.display = 'none';
-  }
+  goal('game_over');
 }
 
 function pickWeighted(pool) {
@@ -593,7 +542,6 @@ window.addEventListener('pointerup', function () { if (keys.up) releaseJump(); k
 window.addEventListener('pointercancel', function () { keys.down = false; keys.up = false; });
 window.addEventListener('blur', function () { keys.down = false; keys.up = false; });
 cv.addEventListener('blur', function () { keys.down = false; keys.up = false; });
-$('dg-again').addEventListener('click', function (e) { e.currentTarget.blur(); startRun(); });
 
 /* Пауза, когда игра ушла с экрана или вкладка скрыта */
 document.addEventListener('visibilitychange', function () { if (document.hidden && state === 'run') paused = true; });
@@ -685,78 +633,6 @@ function render() {
   }
 }
 
-/* ---------- таблица лидеров ---------- */
-function readLocal() {
-  try { return JSON.parse(store.get(LS_SCORES) || '[]'); } catch (e) { return []; }
-}
-var LB = {
-  remote: !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY),
-  base: function () { return CONFIG.SUPABASE_URL.replace(/\/+$/, '') + '/rest/v1/' + CONFIG.TABLE; },
-  hdr: function () { return { apikey: CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CONFIG.SUPABASE_ANON_KEY }; },
-  load: function () {
-    if (!this.remote) return Promise.resolve(readLocal().slice(0, CONFIG.TOP));
-    var u = this.base() + '?select=name,score&order=score.desc,created_at.asc&limit=' + CONFIG.TOP;
-    return fetch(u, { headers: this.hdr() }).then(function (r) {
-      if (!r.ok) throw new Error('load ' + r.status); return r.json();
-    });
-  },
-  submit: function (name, sc) {
-    if (!this.remote) {
-      var a = readLocal(); a.push({ name: name, score: sc });
-      a.sort(function (x, y) { return y.score - x.score; });
-      store.set(LS_SCORES, JSON.stringify(a.slice(0, 50)));
-      return Promise.resolve();
-    }
-    var h = Object.assign({ 'Content-Type': 'application/json', Prefer: 'return=minimal' }, this.hdr());
-    return fetch(this.base(), { method: 'POST', headers: h, body: JSON.stringify({ name: name, score: sc }) })
-      .then(function (r) { if (!r.ok) throw new Error('save ' + r.status); });
-  }
-};
-$('dg-note').textContent = LB.remote ? 'Лучшие результаты всех игроков.' : 'Рекорды пока сохраняются только на этом устройстве.';
-
-function setMsg(s, err) { var m = $('dg-msg'); m.textContent = s; m.className = 'dg-msg' + (err ? ' err' : ''); }
-function cleanName(s) { return s.replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 12); }
-
-function renderBoard(rows, mine) {
-  var ol = $('dg-lb'); ol.innerHTML = '';
-  if (!rows.length) {
-    var e = document.createElement('li'); e.className = 'empty'; e.textContent = 'Пока пусто. Стань первым!'; ol.appendChild(e); return;
-  }
-  var medals = ['🥇', '🥈', '🥉'], used = false;
-  rows.forEach(function (r, i) {
-    var li = document.createElement('li');
-    if (!used && mine && r.name === mine.name && r.score === mine.score) { li.className = 'me'; used = true; }
-    var n = document.createElement('span'); n.className = 'n'; n.textContent = medals[i] || (i + 1) + '.';
-    var nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = r.name;
-    var sc = document.createElement('span'); sc.className = 'sc'; sc.textContent = r.score;
-    li.appendChild(n); li.appendChild(nm); li.appendChild(sc); ol.appendChild(li);
-  });
-}
-function refreshBoard(mine) {
-  return LB.load().then(function (rows) { renderBoard(rows, mine); })
-    .catch(function () { setMsg('Не удалось загрузить таблицу лидеров.', true); });
-}
-
-$('dg-form').addEventListener('submit', function (e) {
-  e.preventDefault();
-  if (submitted || state !== 'dead') return;
-  var name = cleanName($('dg-name').value);
-  if (!name) { setMsg('Впиши имя, чтобы попасть в таблицу.', true); return; }
-  $('dg-save').disabled = true; setMsg('Отправляю…');
-  var sc = finalScore;
-  LB.submit(name, sc).then(function () {
-    submitted = true; store.set(LS_NAME, name);
-    $('dg-form').style.display = 'none';
-    setMsg('Записано! Ты в таблице, ' + name + '.');
-    $('dg-name').blur();
-    if (!window.matchMedia('(pointer:coarse)').matches) { try { cv.focus({ preventScroll: true }); } catch (err) {} }
-    goal('game_score');
-    return refreshBoard({ name: name, score: sc });
-  }).catch(function () {
-    $('dg-save').disabled = false; setMsg('Не получилось отправить результат. Попробуй ещё раз.', true);
-  });
-});
-
 /* ---------- цикл ---------- */
 reset();
 fit();
@@ -768,7 +644,6 @@ function loop(t) {
   if (visible) { step(dt); render(); }
   requestAnimationFrame(loop);
 }
-refreshBoard();
 requestAnimationFrame(loop);
 })();
 </script>
