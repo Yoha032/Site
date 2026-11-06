@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Баскетбол · АндрейСпросил</title>
+<meta name="theme-color" content="#0A0A0A">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0A0A;--card:#161616;--tx:#F5F5F5;--mut:#A3A3A3;--line:#2A2A2A;--acc:#B6FF1A;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 Manrope,system-ui,sans-serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:520px;margin:0 auto;padding:16px}
+h1{font:700 24px/1.1 Unbounded,sans-serif;margin:6px 0 14px}
+h1 .st{font:400 12px Manrope,sans-serif;display:block;margin-top:6px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.logo{font:700 22px Unbounded,sans-serif;text-decoration:none;color:var(--tx)}
+.logo b{color:var(--acc)}
+.back{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:18px;border:2px solid var(--line);color:var(--tx);font-weight:700;font-size:13px;text-decoration:none;white-space:nowrap;transition:.2s}
+.back:hover{border-color:var(--acc);color:var(--acc)}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:22px 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px;margin-bottom:8px}
+.mut{color:var(--mut);font-size:14px}
+.st{font-size:12px;font-weight:400;color:var(--mut)}
+.st.bad{color:#d62828}
+.wins{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.win{text-align:center;padding:12px 6px;margin:0}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid #666;vertical-align:-2px;margin-right:6px}
+.win b{display:block;font:700 34px/1.1 Unbounded,sans-serif;color:var(--acc);margin-top:4px}
+.game{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.side{text-align:center}
+select,textarea{width:100%;font:inherit;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--tx)}
+.score{font:700 64px Unbounded,sans-serif;font-weight:700;line-height:1.1;margin:8px 0}
+.btns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+button{font:inherit;border:1px solid var(--line);background:var(--bg);color:var(--tx);border-radius:10px;padding:12px 0;cursor:pointer}
+button:active{transform:scale(.97)}
+.minus{grid-column:1/-1;color:var(--mut);padding:8px 0}
+.finish{width:100%;margin-top:12px;background:var(--acc);border-color:var(--acc);color:#0A0A0A;font-weight:800;padding:14px;border-radius:14px}
+.row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border:0}
+a{color:var(--acc)}
+summary{cursor:pointer}
+.sm{display:flex;gap:8px;margin-top:8px}
+.sm button{padding:8px 12px;font-size:14px}
+.msg{color:var(--acc);font-size:14px;min-height:20px;margin-top:6px;text-align:center}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <a class="logo" id="logo" href="index.html" aria-label="АндрейСпросил, на главную">Андрей<b>Спросил</b></a>
+  <a class="back" id="back" href="media.html">← Назад</a>
+</header>
+<h1>🏀 Баскетбол <span id="st" class="st"></span></h1>
+<h2>Победы</h2>
+<div class="wins" id="wins"></div>
+<h2>Текущая игра</h2>
+<div class="card">
+  <div class="game" id="game"></div>
+  <div class="msg" id="msg"></div>
+  <button class="finish" id="finish">Завершить игру и записать победу</button>
+</div>
+<h2>Составы</h2>
+<div id="roster"></div>
+<details class="card">
+  <summary>Вставить составы из Telegram</summary>
+  <textarea id="rt" rows="8" placeholder="Вставьте сюда сообщение с составами"></textarea>
+  <button class="finish" id="rload">Загрузить составы</button>
+  <div class="msg" id="rmsg"></div>
+</details>
+<h2>История игр</h2>
+<div id="hist"></div>
+<div class="sm"><button id="undo">Отменить последнюю игру</button><button id="reset">Сбросить всё</button></div>
+</main>
+<script src="basketball-config.js"></script>
+<script>
+var EMB=(top!==self)||/[?&]app/.test(location.search);
+document.getElementById('back').href=EMB?'media.html?app=1':'media.html';document.getElementById('logo').href=EMB?'index.html?app=1':'index.html';
+var C=window.CONFIG||{};
+var BASE=(C.FIREBASE_URL||'').replace(/\/+$/,'');
+var SYNC=!!BASE;
+var EURL=BASE+'/rooms/'+encodeURIComponent(C.ROOM||'saturday')+'/events.json';
+var LKEY='bb-events-v2';
+var COL={w:'#f5f5f5',b:'#222',r:'#d62828'};
+var remote=[],pending=[],sent={},busy=false,S=null,last='',lastR='\u0000';
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function fmt(d){return new Date(d+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+function dot(k){return '<span class="dot" style="background:'+COL[k]+'"></span>'}
+function setSt(ok){var s=$('st');s.textContent=SYNC?(ok?'● онлайн':'● нет связи'):'● только это устройство';s.className='st'+(SYNC&&!ok?' bad':'')}
+
+// Состояние целиком восстанавливается из журнала событий
+function build(){
+  var seen={},St={names:{w:'Белые',b:'Чёрные',r:'Красные'},cur:{a:'w',b:'b',sa:0,sb:0},games:[],roster:null};
+  remote.concat(pending).forEach(function(e){
+    if(seen[e.id])return;seen[e.id]=1;
+    var c=St.cur;
+    if(e.t==='score'){var k=e.s==='a'?'sa':'sb';c[k]=Math.max(0,c[k]+e.n)}
+    else if(e.t==='teams'){c.a=e.a;c.b=e.b}
+    else if(e.t==='finish'){
+      if(c.sa===c.sb||c.a===c.b)return;
+      St.games.push({a:c.a,b:c.b,sa:c.sa,sb:c.sb,d:e.d});
+      var win=c.sa>c.sb?c.a:c.b;
+      var third=['w','b','r'].filter(function(k){return k!==c.a&&k!==c.b})[0];
+      St.cur={a:win,b:third,sa:0,sb:0};
+    }
+    else if(e.t==='undo'){var g=St.games.pop();if(g)St.cur={a:g.a,b:g.b,sa:g.sa,sb:g.sb}}
+    else if(e.t==='roster'){St.roster=e.r;for(var k2 in e.r.teams)St.names[k2]=e.r.teams[k2].name}
+  });
+  return St;
+}
+
+function send(ev){
+  ev.id=uid();
+  if(!SYNC){remote.push(ev);try{localStorage.setItem(LKEY,JSON.stringify(remote))}catch(e){}render();return}
+  pending.push(ev);render();flush();
+}
+function flush(){
+  if(busy)return;
+  var e=pending.filter(function(x){return !sent[x.id]})[0];
+  if(!e)return;
+  busy=true;
+  fetch(EURL,{method:'POST',body:JSON.stringify(e)})
+   .then(function(r){if(!r.ok)throw 0;sent[e.id]=1;return refresh()})
+   .then(function(){busy=false;flush()},function(){busy=false;setSt(false)});
+}
+function refresh(){
+  return fetch(EURL).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(o){
+    remote=o?Object.keys(o).sort().map(function(k){return o[k]}):[];
+    var ids={};remote.forEach(function(e){ids[e.id]=1});
+    pending=pending.filter(function(e){return !ids[e.id]});
+    setSt(true);render();
+  });
+}
+
+function render(){
+  S=build();
+  var key=JSON.stringify(S);
+  if(key===last)return;
+  last=key;
+  var w={w:0,b:0,r:0},td={w:0,b:0,r:0},tdate=today();
+  S.games.forEach(function(g){var k=g.sa>g.sb?g.a:g.b;w[k]++;if(g.d===tdate)td[k]++});
+  $('wins').innerHTML=['w','b','r'].map(function(k){return '<div class="card win">'+dot(k)+esc(S.names[k])+'<b>'+w[k]+'</b><span class="mut">сегодня: '+td[k]+'</span></div>'}).join('');
+  var c=S.cur;
+  function opts(sel){return ['w','b','r'].map(function(k){return '<option value="'+k+'"'+(k===sel?' selected':'')+'>'+esc(S.names[k])+'</option>'}).join('')}
+  function side(id,team,sc){
+    return '<div class="side"><select data-s="'+id+'">'+opts(team)+'</select><div class="score">'+sc+'</div><div class="btns">'+
+    [1,2,3].map(function(n){return '<button data-add="'+id+'" data-n="'+n+'">+'+n+'</button>'}).join('')+
+    '<button class="minus" data-add="'+id+'" data-n="-1">−1</button></div></div>';
+  }
+  $('game').innerHTML=side('a',c.a,c.sa)+side('b',c.b,c.sb);
+  var by={};
+  S.games.forEach(function(g,i){(by[g.d]=by[g.d]||[]).push([g,i])});
+  var ds=Object.keys(by).sort().reverse();
+  $('hist').innerHTML=ds.length?ds.map(function(d){
+    var cnt={w:0,b:0,r:0};
+    by[d].forEach(function(x){var g=x[0];cnt[g.sa>g.sb?g.a:g.b]++});
+    return '<div class="card"><b>'+esc(fmt(d))+'</b><div class="mut">'+['w','b','r'].map(function(k){return esc(S.names[k])+' '+cnt[k]}).join(' · ')+'</div>'+
+    by[d].slice().reverse().map(function(x){var g=x[0];return '<div class="row"><span>'+dot(g.a)+esc(S.names[g.a])+' — '+dot(g.b)+esc(S.names[g.b])+'</span><b>'+g.sa+':'+g.sb+'</b></div>'}).join('')+'</div>';
+  }).join(''):'<div class="card mut">Пока нет сыгранных игр</div>';
+  var rk=JSON.stringify(S.roster);
+  if(rk!==lastR){
+    lastR=rk;
+    $('roster').innerHTML=S.roster?'<div class="mut" style="margin-bottom:6px">'+esc(S.roster.title||'')+'</div>'+['w','b','r'].map(function(k){
+      var t=S.roster.teams[k];
+      return '<details class="card"><summary>'+dot(k)+esc(t.name)+'<div class="mut">'+esc(t.stats)+'</div></summary>'+
+      t.players.map(function(p){return '<div class="row"><span>'+(p.u?'<a href="https://t.me/'+esc(p.u)+'" target="_blank" rel="noopener">'+esc(p.n)+'</a>':esc(p.n))+'</span><span class="mut">'+esc(p.role)+' · '+esc(p.r)+'</span></div>'}).join('')+'</details>';
+    }).join(''):'<div class="card mut">Составы не загружены</div>';
+  }
+}
+
+// Разбор сообщения с составами
+function parse(txt){
+  var teams={},cur=null,title='',M={'⚪':'w','⚫':'b','🔴':'r'};
+  txt.split(/\r?\n/).forEach(function(l){
+    l=l.trim();if(!l)return;
+    var m;
+    if(!cur&&/Составы/i.test(l)){title=l.replace(/^[^\p{L}]+/u,'');return}
+    if((m=l.match(/^(.+?)\s*(⚪|⚫|🔴)\uFE0F?$/))){cur=M[m[2]];teams[cur]={name:m[1].trim(),stats:'',players:[]};return}
+    if(!cur)return;
+    if((m=l.match(/Ср\.\s*рейтинг:\s*([\d.]+).*?Ср\.\s*рост:\s*(\d+).*?Ср\.\s*вес:\s*(\d+)/i))){teams[cur].stats='рейтинг '+m[1]+' · '+m[2]+' см · '+m[3]+' кг';return}
+    if((m=l.match(/^[-•–]\s*(.+?)\s*(@\w+)?\s*\((.+),\s*([\d.]+)\)\s*$/))){
+      teams[cur].players.push({n:m[1].replace(/\s*NoNick$/i,'').trim(),u:m[2]?m[2].slice(1):'',role:m[3],r:m[4]});
+    }
+  });
+  return Object.keys(teams).length===3?{title:title,teams:teams}:null;
+}
+
+document.addEventListener('click',function(e){
+  var t=e.target.closest('button[data-add]');
+  if(t){$('msg').textContent='';send({t:'score',s:t.dataset.add,n:Number(t.dataset.n)})}
+});
+document.addEventListener('change',function(e){
+  var s=e.target.dataset&&e.target.dataset.s;if(!s)return;
+  var c=S.cur,a=c.a,b=c.b,v=e.target.value;
+  if(s==='a'){a=v;if(v===b)b=c.a}else{b=v;if(v===a)a=c.b}
+  send({t:'teams',a:a,b:b});
+});
+$('finish').onclick=function(){
+  var c=S.cur;
+  if(c.sa===c.sb){$('msg').textContent='Ничья — продолжайте игру, победитель должен определиться.';return}
+  var win=c.sa>c.sb?c.a:c.b,third=['w','b','r'].filter(function(k){return k!==c.a&&k!==c.b})[0];
+  $('msg').textContent='Победили: '+S.names[win]+'. Следующая игра: '+S.names[win]+' — '+S.names[third]+'.';
+  send({t:'finish',d:today()});
+};
+$('undo').onclick=function(){if(S.games.length){$('msg').textContent='';send({t:'undo'})}};
+$('reset').onclick=function(){
+  if(!confirm('Удалить все игры, победы и составы? Это увидят все устройства.'))return;
+  if(!SYNC){remote=[];try{localStorage.removeItem(LKEY)}catch(e){}render();return}
+  pending=[];fetch(EURL,{method:'DELETE'}).then(refresh).catch(function(){setSt(false)});
+};
+$('rload').onclick=function(){
+  var r=parse($('rt').value);
+  if(!r){$('rmsg').textContent='Не удалось разобрать: нужны три команды с заголовками ⚪ ⚫ 🔴.';return}
+  send({t:'roster',r:r});$('rmsg').textContent='Составы загружены.';$('rt').value='';
+};
+
+if(SYNC){
+  setSt(true);
+  refresh().catch(function(){setSt(false)});
+  setInterval(function(){refresh().catch(function(){setSt(false)});flush()},3000);
+}else{
+  try{remote=JSON.parse(localStorage.getItem(LKEY)||'[]')}catch(e){remote=[]}
+  setSt(true);
+}
+render();
+</script>
+</body>
+</html>

@@ -69,6 +69,14 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 .empty{background:var(--cd);border-radius:24px;padding:28px 20px;text-align:center}
 .empty b{display:block;font:600 18px Unbounded,sans-serif;margin-bottom:6px}
 .empty span{color:var(--mu);font-size:14px}
+.ball{display:flex;align-items:center;gap:14px;border-radius:20px;padding:16px;background:var(--cd);border:2px solid var(--ln);text-decoration:none;color:var(--tx);transition:.2s}
+.ball:hover{border-color:var(--ac);transform:translateY(-3px)}
+.ball i{font-style:normal;font-size:34px;line-height:1}
+.ball div{flex:1;min-width:0}
+.ball small{color:var(--ac);font-weight:800;font-size:12px;letter-spacing:.12em}
+.ball strong{display:block;font:600 18px Unbounded,sans-serif;margin:4px 0 2px}
+.ball span{color:var(--mu);font-size:14px}
+.ball em{font-style:normal;color:var(--ac);font-weight:800;font-size:22px}
 .promo{display:block;border:2px solid var(--ac);border-radius:20px;padding:16px;text-decoration:none;color:var(--tx);transition:background .2s}
 .promo:hover{background:#161616}
 .promo small{color:var(--ac);font-weight:800;font-size:12px;letter-spacing:.12em}
@@ -125,6 +133,8 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
 
   <div class="col" id="list"></div>
 
+  <a class="ball rv" style="--i:8" id="ball" href="basketball.html"><i aria-hidden="true">🏀</i><div><small>ПРИЛОЖЕНИЕ</small><strong>Субботний баскетбол</strong><span>Счёт, победы и составы команд</span></div><em aria-hidden="true">→</em></a>
+
   <a class="promo rv" style="--i:9" href="https://t.me/NemoyKoncert" target="_blank" rel="noopener noreferrer"><small>СОТРУДНИЧЕСТВО</small><div>Нужен ведущий или видео?</div><span>Напишите в Telegram, обсудим ваше мероприятие</span></a>
 </div>
 
@@ -148,6 +158,7 @@ header{display:flex;justify-content:space-between;align-items:center;margin-bott
   var EMB=(top!==self)||/[?&]app/.test(location.search);
   var HOME=EMB?"index.html?app=1":"index.html";
   $("home").href=HOME;$("logo").href=HOME;
+  $("ball").href=EMB?"basketball.html?app=1":"basketball.html";
 
   var TYPES={ev:"МЕРОПРИЯТИЕ",in:"ИНТЕРВЬЮ",sh:"ШОУ"};
   var GR={ev:"linear-gradient(135deg,#27400a,#0d1802 70%)",in:"linear-gradient(135deg,#2a1850,#120c1e 70%)",sh:"linear-gradient(135deg,#4a1d12,#160a06 70%)"};
