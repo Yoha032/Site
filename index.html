@@ -132,6 +132,38 @@ h1{font-size:20px}
 .vt button[aria-pressed=true]{color:#0A0A0A}
 html.emb .vt{display:none!important}
 
+.dg{background:var(--cd);border-radius:24px;padding:20px 16px 16px}
+.dg-h{margin:0 0 6px;font:700 26px/1.1 Unbounded,sans-serif;letter-spacing:.02em}
+.dg-h span{color:var(--ac)}
+.dg-sub{margin:0 0 14px;color:var(--mu);font-size:14px}
+.dg-cv{display:block;width:100%;height:auto;border-radius:16px;background:#000;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;cursor:pointer;outline:none}
+.dg-cv:focus-visible{box-shadow:0 0 0 2px var(--ac)}
+.dg-touch{display:none;gap:10px;margin-top:10px}
+.dg-touch .dg-btn{flex:1;touch-action:none;user-select:none;-webkit-user-select:none}
+@media (pointer:coarse){.dg-touch{display:flex}}
+.dg-btn{height:48px;padding:0 22px;border-radius:24px;border:2px solid var(--ac);background:none;color:var(--ac);font:800 14px Manrope,sans-serif;cursor:pointer;transition:.2s}
+.dg-btn.fill{background:var(--ac);color:#0A0A0A}
+.dg-btn:disabled{opacity:.5;cursor:default}
+@media (hover:hover){.dg-btn:not(:disabled):hover{background:var(--ac);color:#0A0A0A}}
+.dg-dead{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--ln)}
+.dg-dead.show{display:block}
+.dg-dead label{display:block;color:var(--mu);font-size:14px;margin-bottom:8px}
+.dg-dead label b{color:var(--ac);font:700 16px Unbounded,sans-serif}
+.dg-fr{display:flex;gap:8px;margin-bottom:10px}
+.dg-fr input{flex:1;min-width:0;height:48px;padding:0 18px;border-radius:24px;border:2px solid var(--ln);background:#0A0A0A;color:var(--tx);font:600 16px Manrope,sans-serif}
+.dg-fr input:focus{outline:none;border-color:var(--ac)}
+.dg-msg{min-height:18px;margin-top:6px;color:var(--ac);font-size:13px}
+.dg-msg.err{color:#FF6A5E}
+.dg-lbt{margin:14px 0 4px}
+.dg-note{margin:0 0 6px;color:var(--mu);font-size:12px}
+.dg-lb{list-style:none;margin:0;padding:0}
+.dg-lb li{display:flex;gap:10px;align-items:baseline;padding:11px 8px;border-top:1px solid var(--ln);font-size:14px}
+.dg-lb li.me{background:#1f1f1f;border-radius:10px}
+.dg-lb li.empty{display:block;color:var(--mu);text-align:center}
+.dg-lb .n{flex:none;width:30px;color:var(--mu);text-align:right}
+.dg-lb .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dg-lb .sc{flex:none;color:var(--ac);font:700 13px Unbounded,sans-serif}
+
 </style>
 </head>
 <body>
@@ -154,6 +186,23 @@ html.emb .vt{display:none!important}
 <a class="ig rv" style="--i:6" href="https://www.instagram.com/andrey.voice" target="_blank" rel="noopener noreferrer"><b class="newb">НОВОЕ</b><i class="ring"><img src="story.jpg" alt="Андрей озвучил"></i><span class="igt"><small>INSTAGRAM</small><strong>@andrey.voice</strong><em>озвучиваю ролики в свое удовольствие</em></span></a>
 <div class="inst rv" id="inst" style="--i:7"><button id="ins">Установить как приложение</button><p id="ih" hidden></p></div>
 <img class="adimg rv" style="--i:8" src="ad.jpg" width="1000" height="500" alt="Реклама: генерация контента для вашего бренда, съёмки, интервью, подкасты, организация и проведение мероприятий">
+<section class="dg rv" id="potehe" style="--i:9" aria-labelledby="dg-h">
+<h2 class="dg-h" id="dg-h">ПОТЕХЕ <span>ЧАС</span></h2>
+<p class="dg-sub">Помоги Андрею убежать от нечисти: продержись подольше и попади в топ.</p>
+<canvas class="dg-cv" id="dg-cv" width="900" height="320" tabindex="0" aria-label="Игра: Андрей бежит от нечисти. Прыжок: пробел или стрелка вверх, пригнуться: стрелка вниз."></canvas>
+<div class="dg-touch"><button class="dg-btn fill" id="dg-jump" type="button" tabindex="-1">⬆ Прыжок</button><button class="dg-btn" id="dg-duck" type="button" tabindex="-1">⬇ Пригнуться</button></div>
+<div class="dg-dead" id="dg-dead">
+<form id="dg-form" autocomplete="off">
+<label for="dg-name">Твой результат: <b id="dg-final">0</b>. Впиши имя в таблицу лидеров</label>
+<div class="dg-fr"><input id="dg-name" type="text" maxlength="12" placeholder="Твоё имя" enterkeyhint="send"><button class="dg-btn fill" id="dg-save" type="submit">Записать</button></div>
+</form>
+<button class="dg-btn" id="dg-again" type="button">Ещё раз</button>
+</div>
+<div class="dg-msg" id="dg-msg" role="status"></div>
+<div class="lbl dg-lbt">ТОП-10</div>
+<p class="dg-note" id="dg-note"></p>
+<ol class="dg-lb" id="dg-lb"></ol>
+</section>
 </div>
 <div class="tick" aria-hidden="true"><div class="trk" id="trk"></div></div>
 </main>
@@ -255,15 +304,12 @@ return fetch(u,ac?{signal:ac.signal}:{}).then(function(r){clearTimeout(t);if(!r.
 function getTree(){var g=ghInfo();if(!g)return Promise.resolve(null);
 var c=S.g("as:tree");if(c&&c.k===g.o+"/"+g.r&&Date.now()-c.t<120000)return Promise.resolve(c.f);
 return fetchT("https://api.github.com/repos/"+g.o+"/"+g.r+"/git/trees/HEAD?recursive=1",6000).then(function(j){
-if(j.truncated)throw 0;
 var f=(j.tree||[]).filter(function(x){return x.type==="blob"&&/^podcasts\/[^\/]+\/.+\.(mp3|m4a)$/i.test(x.path)}).map(function(x){return x.path});
 S.s("as:tree",{k:g.o+"/"+g.r,t:Date.now(),f:f});return f}).catch(function(){return c?c.f:null})}
 function addedDate(p){var g=ghInfo(),m=S.g("as:fd")||{};if(m[p]!==undefined)return Promise.resolve(m[p]);if(!g)return Promise.resolve("");
 return fetchT("https://api.github.com/repos/"+g.o+"/"+g.r+"/commits?per_page=1&path="+encodeURIComponent(p),6000).then(function(j){
 var d=j&&j[0]&&j[0].commit&&j[0].commit.committer?String(j[0].commit.committer.date).slice(0,10):"";if(d){m[p]=d;S.s("as:fd",m)}return d}).catch(function(){return ""})}
 function mergeTree(c,files){var have={},by={},jobs=[];
-/* Файлы, которых уже нет в репозитории, убираем из списка (если mp3 лежат на самом сайте, а не на внешнем хостинге) */
-if(!c.base){var ex={};files.forEach(function(p){ex[nfc(p)]=1});c.folders.forEach(function(f){f.episodes=(f.episodes||[]).filter(function(e){return ex[nfc(e.file||"")]})})}
 c.folders.forEach(function(f){by[nfc(f.name)]=f;f.episodes.forEach(function(e){have[nfc(e.file)]=1})});
 files.forEach(function(p){if(have[nfc(p)])return;var m=/^podcasts\/([^\/]+)\/(.+)\.(mp3|m4a)$/i.exec(p);if(!m)return;
 var f=by[nfc(m[1])];if(!f){f={name:nfc(m[1]),episodes:[]};c.folders.push(f);by[nfc(m[1])]=f}
@@ -281,6 +327,450 @@ if(matchMedia("(display-mode: standalone)").matches||navigator.standalone)$("ins
 $("ins").onclick=function(){G("install");if(dp){dp.prompt();dp=null;return}var h=$("ih");h.hidden=false;
 h.textContent=/iPhone|iPad|iPod/.test(navigator.userAgent)?"iPhone: нажмите «Поделиться» в Safari и выберите «На экран Домой».":"Android: откройте меню браузера ⋮ и выберите «Установить приложение». Компьютер: значок установки в адресной строке."};
 if("serviceWorker" in navigator&&location.protocol.indexOf("http")==0){navigator.serviceWorker.register("sw.js").catch(function(){})}
+</script>
+
+<script>
+(function () {
+'use strict';
+
+/* ===== «Потехе час»: настройки таблицы лидеров =====
+   Чтобы результаты видели все посетители, заполни два поля из Supabase
+   (Project Settings → API) и выполни leaderboard-setup.sql (см. README).
+   Пока поля пустые, рекорды хранятся только в браузере посетителя. */
+var CONFIG = {
+  SUPABASE_URL: '',        // например 'https://abcd1234.supabase.co'
+  SUPABASE_ANON_KEY: '',   // публичный anon-ключ
+  TABLE: 'scores',
+  TOP: 10
+};
+
+var DATA = {"palette":{"K":"#14111c","S":"#eaa670","G":"#8f8f98","g":"#6f6f78","R":"#d93c3c","B":"#3f68b5","D":"#2e4d8f","L":"#8fbbee","W":"#f4f1ea","T":"#a3a9b3","Y":"#f2d25a","P":"#6d4527","O":"#ec8a22","N":"#8b5b2e","Z":"#68ad5e","z":"#3e7a46","F":"#fff0a0","f":"#fff0a07a","J":"#3b3752","u":"#4d5780","y":"#4c3a6e","x":"#2e2248","k":"#5a586c"},"player":{"body":["......KK.KKK........",".....KKKKKKKKK......","....KKKKKKKKKKK.....","....KKKKKKKKKKK.....","....KKSSSSSSSKK.....","....SSSSSSSSSSS.....","...SSSKSSSSSKSSS....","...SSSSSSSSSSSSS....","....SSKKKKKKKSS.....","....SSSKKKKKSSS.....",".....SSSSSSSSS......",".......SSSSS........","...GGGGGGGGGGGGG....","..GGGGGGGGGGGGGGG...","..GGGRGRRGRRGGGGG...","..SSGRRGRGRRGRGSS...","..SSGGRRGRRGGGGSS...","..SSGGGGGGGGGGGSS...","..SSGGGGGGGGGGGSS...","..SSGGGGGGGGGGGSS...","....BBBBBBBBBBB.....","....BBBBBBBBBBB....."],"legs":{"stand":[[4,22,5,6,"B"],[10,22,5,6,"B"],[3,28,6,2,"L"],[10,28,7,2,"L"]],"runA":[[10,22,5,6,"B"],[10,28,7,2,"L"],[4,22,5,4,"B"],[3,26,6,2,"L"]],"runB":[[4,22,5,6,"B"],[3,28,7,2,"L"],[10,22,5,4,"B"],[10,26,6,2,"L"]],"jump":[[4,22,5,5,"B"],[4,27,6,2,"L"],[10,22,5,3,"B"],[10,25,7,2,"L"]]}},"obstacles":[{"name":"scarecrow","rows":["....PPPPPPPP......","....PPPPPPPP......","..PPPPPPPPPPPP....","..YYSSSSSSSSYY....",".YYYSKSSSSKSYYY...","..YYSSSSSSSSYY....","...YSSKKKKSSY.....","......SSSS........",".......NN.........","..OOOOOOOOOOOO....","YYOOOOOOOOOOOOYY..","Y.Y.OOOOOOOO.Y.Y..","....OOBBOOOO......","....OOBBOOOO......","....OOOOOORR......","....OOOOOORR......","....OOOOOOOO......","...YYYYYYYYYY.....","....Y.YYYY.Y......",".......NN.........",".......NN.........",".......NN.........",".......NN.........",".......NN.........",".......NN.........",".......NN........."],"hit":[[3,0,10,18],[6,18,4,8]],"minScore":0,"weight":3,"air":0,"extra":0,"bob":0},{"name":"cat","rows":["..................................",".............KK...KK..............",".............KK...KK..............",".............KkKKKKk..............",".............KKKKKKK..............","ff...........KYKKKYK..............","ffff.........KKKKKKK......kk......","ffffffFTTTT..KKKKKKK......KK......","ffffffFTTTT..KKKKKKK......KK......","ffff.....TT....KKKKKKKKK..KK......","ff.......TTKKKKKKKKKKKKK..KK......",".........TTKKKKKKKKKKKKK..KK......",".........TT....KKKKKKKKK..KK......",".........TT....KKKKKKKKK..KK......",".........TT....KKKKKKKKKKKKK......",".........TT....KKKKKKKKKKKKK......",".........TT....KKKKKKKKK..........",".........RRRRRRRRRRRRRRRRRR.......",".......KKRRRRRRRRRRRRRRRRRRKK.....","......KTTK................KTTK....",".....KTTTTK..............KTTTTK...",".....KTTTTK..............KTTTTK...","......KTTK................KTTK....",".......KK..................KK....."],"hit":[[7,1,24,23]],"minScore":0,"weight":3,"air":0,"extra":1,"bob":0},{"name":"frank","rows":[".....KKKKKKKKK......",".....KKKKKKKKK......",".....KKKKKKKKK......",".....ZZzzzZZZZ......",".....ZKWZZZKWZ......",".....ZZZZZZZZZ......","....TZZZZZZZZZT.....",".....ZZZZzZZZZ......",".....ZZKKKKKZZ......",".....ZZZZZZZZZ......","......ZZZZZZZ.......",".......ZZZZZ........","...JJJJJJJJJJJJ.....","...JJJJJJJJJJJJ.....","ZZZZJJJJJJJJJJ......","ZZZZJJJJJJJJJJ......","....JJJJJJJJJJ......","....JJJJJJJJJJ......","....JJJJJJJJJJ......","....uuuuuuuuuu......","....uuuuuuuuuu......","....uuuu..uuuu......","....uuuu..uuuu......","....uuuu..uuuu......","...KKKKK..KKKKK.....","...KKKKK..KKKKK....."],"hit":[[4,0,11,26],[0,14,4,2]],"minScore":60,"weight":3,"air":0,"extra":0,"bob":0},{"name":"ghost","rows":["......WWWWWWWW......","....WWWWWWWWWWWW....","...WWWWWWWWWWWWWW...","...WWWWWWWWWWWWWW...","..WWWWWWWWWWWWWWWW..","..WWWWKKWWWWKKWWWW..","..WWWWKKWWWWKKWWWW..","..WWWWWWWWWWWWWWWW..","..WWWWWWWKKWWWWWWW..","..WWWWWWKKKKWWWWWW..","..WWWWWWWKKWWWWWWW..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWWWWWWWWWWWWWTT..","..WWW.WWWWW.WWWWTT..","..WW...WWW...WWW.T.."],"hit":[[3,1,14,19]],"minScore":150,"weight":2,"air":58,"extra":0,"bob":5},{"name":"skeleton","rows":["............WWWWWW................","...........WWWWWWWW...............","...........WKKWWKKW...............","...........WWWWKWWW...............","...........WKWKWKWW...............","............WWWWWW................","...............TWTWTW.............","...............WTWTWT.............","......KKKWWWWWWWWTWTW.............","........T......WTWTWT.............","...FFF..T.........WWWWWWW.........","...FFF..T..RRRWWWWWKKKKKKKKK......","...FFF..T..RRWWRRRRKKKKKKKKK......","....KKKKTK.RRWWRRRRR....KKKKKK....","...KKKKKTKK..WWTTTTTTT.KKKKKKKK...","..KKKKKKTKKK.WWTTTTTTTKKKKKKKKKK..","..KKKKTTTKKK.WWTTTTTTTKKKKTTKKKK..","..KKKTTTTTTTKKKKTTTTTTTTTTTTTKKK..","..KKKTTTTTTTTTTTTTTTTTTTTTTTTKKK..","..KKKKTTKKKK..........KKKKTTKKKK..","..KKKKKKKKKK..........KKKKKKKKKK..","...KKKKKKKK............KKKKKKKK...","....KKKKKK..............KKKKKK...."],"hit":[[2,12,30,11],[11,0,12,12]],"minScore":300,"weight":2,"air":0,"extra":3.5,"bob":0}],"decor":{"tomb":["..yyyyy..",".yyyyyyy.","yyyyyyyyy","yyyyxyyyy","yyyxxxyyy","yyyyxyyyy","yyyyxyyyy","yyyyyyyyy","yyyyyyyyy","yyyyyyyyy","yyyyyyyyy"],"pumpkin":["....zz.....","..OOOzOOO..",".OOOOOOOOO.","OOFFOOOFFOO","OOOFOOOFOOO","OOOOOOOOOOO","OOFOFOFOFOO",".OOFFFFFOO.","..OOOOOOO.."]}};
+
+var H = 320, W = 900, WIDE = 900, NARROW = 564, GROUND = 272, P = 3, DUCK = 0.58, PX = 90, sx = 1;
+var GRAV = 0.78, JUMP_V = 14, V0 = 6.2, VMAX = 15, ACC = 0.0022;
+var PL_W = 20, PL_H = 30;
+var LS_BEST = 'as:dg:best', LS_NAME = 'as:dg:name', LS_SCORES = 'as:dg:scores';
+
+var $ = function (id) { return document.getElementById(id); };
+var cv = $('dg-cv'), ctx = cv.getContext('2d');
+
+var store = {
+  get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+
+/* ---------- спрайты ---------- */
+function mk(w, h) { var c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+function paint(g, rows) {
+  rows.forEach(function (r, y) {
+    for (var x = 0; x < r.length; x++) {
+      var ch = r[x]; if (ch === '.') continue;
+      var col = DATA.palette[ch]; if (!col) continue;
+      g.fillStyle = col; g.fillRect(x, y, 1, 1);
+    }
+  });
+}
+function sprite(rows) {
+  var w = Math.max.apply(null, rows.map(function (r) { return r.length; })), h = rows.length;
+  var c = mk(w, h); paint(c.getContext('2d'), rows);
+  return { c: c, w: w, h: h };
+}
+var plFrames = {};
+Object.keys(DATA.player.legs).forEach(function (k) {
+  var c = mk(PL_W, PL_H), g = c.getContext('2d');
+  paint(g, DATA.player.body);
+  DATA.player.legs[k].forEach(function (r) { g.fillStyle = DATA.palette[r[4]]; g.fillRect(r[0], r[1], r[2], r[3]); });
+  plFrames[k] = c;
+});
+var DEFS = DATA.obstacles.map(function (o) {
+  var s = sprite(o.rows);
+  return Object.assign({}, o, { c: s.c, w: s.w, h: s.h });
+});
+var DECOR = {};
+Object.keys(DATA.decor).forEach(function (k) { DECOR[k] = sprite(DATA.decor[k]); });
+
+/* ---------- фон (пересобирается, если сцена стала уже или шире) ---------- */
+var seed = 11, sky = null, hills = null, specks = [], DECOR_ITEMS = [];
+function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+
+function buildBg() {
+  seed = 11;
+  sky = mk(W, H);
+  var g = sky.getContext('2d');
+  var gr = g.createLinearGradient(0, 0, 0, GROUND);
+  gr.addColorStop(0, '#1c1238'); gr.addColorStop(0.55, '#5a2a6e');
+  gr.addColorStop(0.85, '#c8553d'); gr.addColorStop(1, '#f0a04b');
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#fff';
+  var ns = Math.round(70 * W / 900), i;
+  for (i = 0; i < ns; i++) {
+    g.globalAlpha = 0.4 + rnd() * 0.6;
+    var s = rnd() < 0.2 ? 3 : 2;
+    g.fillRect((rnd() * W) | 0, (rnd() * GROUND * 0.55) | 0, s, s);
+  }
+  g.globalAlpha = 1;
+  var cx = W - 170, cy = 90, R = 42;
+  for (var y = -R; y <= R; y += 3) for (var x = -R; x <= R; x += 3) {
+    if (x * x + y * y <= R * R) { g.fillStyle = '#ffd98a'; g.fillRect(cx + x, cy + y, 3, 3); }
+  }
+  g.fillStyle = '#f0bd6a';
+  [[-15, -12], [12, 6], [-6, 21], [18, -21]].forEach(function (p) { g.fillRect(cx + p[0], cy + p[1], 9, 9); });
+
+  hills = mk(W, 160);
+  var hg = hills.getContext('2d');
+  hg.fillStyle = '#2a1a44';
+  for (var hx = 0; hx < W; hx += 6) {
+    var hh = 46 + 22 * Math.sin(2 * Math.PI * 2 * hx / W) + 14 * Math.sin(2 * Math.PI * 5 * hx / W + 1);
+    hh = Math.round(hh / 6) * 6;
+    hg.fillRect(hx, 160 - hh, 6, hh);
+  }
+  [0.08, 0.28, 0.48, 0.71, 0.91].forEach(function (f) {
+    var tx = Math.round(f * W / 6) * 6;
+    hg.fillRect(tx, 60, 6, 100);
+    hg.fillRect(tx - 18, 84, 18, 5); hg.fillRect(tx - 18, 72, 5, 14);
+    hg.fillRect(tx + 6, 100, 20, 5); hg.fillRect(tx + 21, 86, 5, 16);
+    hg.fillRect(tx - 12, 112, 12, 5);
+  });
+
+  DECOR_ITEMS = [['tomb', 0.04], ['pumpkin', 0.21], ['tomb', 0.37], ['tomb', 0.42], ['pumpkin', 0.62], ['tomb', 0.78], ['pumpkin', 0.9]]
+    .map(function (a) { return { k: a[0], x: a[1] * W }; });
+  specks = [];
+  var n = Math.round(46 * W / 900);
+  for (i = 0; i < n; i++) specks.push({ x: rnd() * W, y: GROUND + 12 + rnd() * (H - GROUND - 18), w: 3 + ((rnd() * 3) | 0) * 3 });
+}
+
+/* Холст рисуется в реальном разрешении экрана: чёткий текст и ровные пиксели.
+   На узких экранах мир короче, чтобы персонаж не становился крошечным. */
+function fit() {
+  var cssW = cv.clientWidth || (cv.parentNode && cv.parentNode.clientWidth) || 520;
+  var nw = cssW < 480 ? NARROW : WIDE;
+  if (nw !== W || !sky) { W = nw; buildBg(); }
+  var d = Math.min(window.devicePixelRatio || 1, 2);
+  var pw = Math.round(cssW * d), ph = Math.round(pw * H / W);
+  if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+  sx = cv.width / W;
+}
+
+/* ---------- состояние игры ---------- */
+var state = 'ready', paused = false, visible = true;
+var speed, score, finalScore, distFar, distMid, distGround, sinceSpawn, nextGap, obstacles, animT, deadAt, best, submitted;
+var pl = { y: 0, vy: 0, duck: false };
+var keys = { up: false, down: false };
+best = parseInt(store.get(LS_BEST) || '0', 10) || 0;
+
+function reset() {
+  speed = V0; score = 0; distFar = 0; distMid = 0; distGround = 0;
+  sinceSpawn = 0; nextGap = 520 * (W / 900); obstacles = []; animT = 0;
+  pl.y = 0; pl.vy = 0; pl.duck = false; paused = false;
+}
+
+function goal(n) { try { if (window.G) window.G(n); } catch (e) {} }
+
+function startRun() {
+  reset(); state = 'run'; submitted = false;
+  $('dg-dead').classList.remove('show'); setMsg('');
+  goal('game_start');
+}
+
+function die() {
+  state = 'dead'; deadAt = performance.now();
+  finalScore = Math.floor(score);
+  if (finalScore > best) { best = finalScore; store.set(LS_BEST, String(best)); }
+  $('dg-dead').classList.add('show');
+  var form = $('dg-form');
+  if (finalScore > 0) {
+    form.style.display = 'block';
+    $('dg-final').textContent = finalScore;
+    $('dg-save').disabled = false;
+    $('dg-name').value = store.get(LS_NAME) || '';
+    if (!window.matchMedia('(pointer:coarse)').matches) {
+      setTimeout(function () { if (state === 'dead' && !submitted) $('dg-name').focus({ preventScroll: true }); }, 500);
+    }
+  } else {
+    form.style.display = 'none';
+  }
+}
+
+function pickWeighted(pool) {
+  var total = pool.reduce(function (s, d) { return s + d.weight; }, 0), r = Math.random() * total;
+  for (var i = 0; i < pool.length; i++) { r -= pool[i].weight; if (r <= 0) return pool[i]; }
+  return pool[0];
+}
+var lastType = '', repeat = 0;
+function spawn() {
+  var k = W / 900;
+  var pool = DEFS.filter(function (d) { return score >= d.minScore; });
+  var d = pickWeighted(pool);
+  if (d.name === lastType && ++repeat >= 2 && pool.length > 1) {
+    d = pickWeighted(pool.filter(function (x) { return x.name !== lastType; })); repeat = 0;
+  }
+  if (d.name !== lastType) { lastType = d.name; repeat = 0; }
+  obstacles.push({ def: d, x: W + 20, w: d.w * P, t: 0, y: 0 });
+  sinceSpawn = 0;
+  nextGap = (speed * 30 + 90 + Math.random() * 260) * k + d.w * P;
+}
+
+function collide() {
+  var a;
+  if (pl.duck) {
+    var t = GROUND - PL_H * P * DUCK;
+    a = { x: PX + 4 * P, y: t + 5, w: 11 * P, h: GROUND - t - 7 };
+  } else {
+    var t2 = GROUND - pl.y - PL_H * P;
+    a = { x: PX + 5 * P, y: t2 + 2 * P, w: 9 * P, h: (PL_H - 3) * P };
+  }
+  for (var i = 0; i < obstacles.length; i++) {
+    var o = obstacles[i];
+    for (var j = 0; j < o.def.hit.length; j++) {
+      var r = o.def.hit[j];
+      var bx = o.x + r[0] * P, by = o.y + r[1] * P, bw = r[2] * P, bh = r[3] * P;
+      if (a.x < bx + bw && a.x + a.w > bx && a.y < by + bh && a.y + a.h > by) return true;
+    }
+  }
+  return false;
+}
+
+function step(dt) {
+  animT += dt;
+  if (state !== 'run' || paused) return;
+  var k = W / 900;                       /* скорость движения мира зависит от ширины сцены, счёт и темп времени нет */
+  speed = Math.min(VMAX, speed + ACC * dt);
+  var mv = speed * dt * k;
+  score += speed * dt * 0.05;
+  distFar += mv * 0.15; distMid += mv * 0.5; distGround += mv;
+
+  if (pl.y > 0 || pl.vy > 0) {
+    var g = (keys.down && pl.y > 0) ? GRAV * 2.4 : GRAV;
+    pl.vy -= g * dt; pl.y += pl.vy * dt;
+    if (pl.y <= 0) { pl.y = 0; pl.vy = 0; }
+  }
+  pl.duck = keys.down && pl.y === 0;
+
+  sinceSpawn += mv;
+  if (sinceSpawn >= nextGap) spawn();
+  obstacles.forEach(function (o) {
+    o.x -= (speed + o.def.extra) * dt * k; o.t += dt;
+    o.y = GROUND - o.def.air - o.def.h * P + (o.def.bob ? Math.sin(o.t * 0.08) * o.def.bob : 0);
+  });
+  obstacles = obstacles.filter(function (o) { return o.x + o.w > -40; });
+  if (collide()) die();
+}
+
+/* ---------- управление ---------- */
+function onJump() {
+  if (state === 'ready') { startRun(); return; }
+  if (state === 'dead') { if (performance.now() - deadAt > 600) startRun(); return; }
+  if (paused) { paused = false; return; }
+  if (pl.y === 0 && pl.vy === 0) pl.vy = JUMP_V;
+}
+function releaseJump() { keys.up = false; if (state === 'run' && pl.vy > 6) pl.vy = 6; }
+
+function typing(t) { return t && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(t.tagName); }
+/* Клавиши забираем у страницы только пока игра в фокусе или идёт забег,
+   чтобы пробел и стрелки по-прежнему прокручивали сайт. */
+function kbOn() { return document.activeElement === cv || (state === 'run' && !paused && visible); }
+
+document.addEventListener('keydown', function (e) {
+  if (typing(e.target) || !kbOn()) return;
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+    e.preventDefault(); if (!e.repeat) onJump(); keys.up = true;
+  } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+    e.preventDefault(); keys.down = true;
+  }
+});
+document.addEventListener('keyup', function (e) {
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') releaseJump();
+  else if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.down = false;
+});
+cv.addEventListener('pointerdown', function (e) {
+  e.preventDefault();
+  try { cv.focus({ preventScroll: true }); } catch (err) {}
+  onJump(); keys.up = true;
+});
+$('dg-jump').addEventListener('pointerdown', function (e) { e.preventDefault(); onJump(); keys.up = true; });
+$('dg-duck').addEventListener('pointerdown', function (e) { e.preventDefault(); keys.down = true; });
+window.addEventListener('pointerup', function () { if (keys.up) releaseJump(); keys.down = false; });
+window.addEventListener('pointercancel', function () { keys.down = false; keys.up = false; });
+window.addEventListener('blur', function () { keys.down = false; keys.up = false; });
+cv.addEventListener('blur', function () { keys.down = false; keys.up = false; });
+$('dg-again').addEventListener('click', function (e) { e.currentTarget.blur(); startRun(); });
+
+/* Пауза, когда игра ушла с экрана или вкладка скрыта */
+document.addEventListener('visibilitychange', function () { if (document.hidden && state === 'run') paused = true; });
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(function (es) {
+    var e = es[es.length - 1];
+    visible = e.intersectionRatio >= 0.3;
+    if (!visible && state === 'run') paused = true;
+  }, { threshold: [0, 0.3, 0.6, 1] }).observe(cv);
+}
+
+/* ---------- отрисовка ---------- */
+function text(s, x, y, size, color, align) {
+  ctx.font = '700 ' + size + 'px Unbounded, Manrope, sans-serif';
+  ctx.textAlign = align || 'center';
+  ctx.fillStyle = '#000'; ctx.fillText(s, x + 2, y + 2);
+  ctx.fillStyle = color || '#fff'; ctx.fillText(s, x, y);
+}
+function pad5(n) { return ('00000' + n).slice(-5); }
+
+function drawPlayer() {
+  var key = 'stand';
+  if (state === 'run') key = pl.y > 0 ? 'jump' : ((Math.floor(animT / 5) % 2) ? 'runA' : 'runB');
+  if (state === 'dead') key = 'jump';
+  var c = plFrames[key], h = PL_H * P;
+  ctx.fillStyle = 'rgba(0,0,0,.3)';
+  var sw = Math.max(20, 54 - pl.y / 4);
+  ctx.fillRect(PX + 30 - sw / 2 + 6, GROUND - 3, sw, 5);
+  if (state === 'dead') {
+    ctx.save(); ctx.translate(PX + h, GROUND); ctx.rotate(-Math.PI / 2);
+    ctx.drawImage(c, 0, 0, PL_W, PL_H, 0, -h, PL_W * P, h);
+    ctx.restore(); return;
+  }
+  if (pl.duck) ctx.drawImage(c, 0, 0, PL_W, PL_H, PX, GROUND - h * DUCK, PL_W * P, h * DUCK);
+  else ctx.drawImage(c, 0, 0, PL_W, PL_H, PX, GROUND - pl.y - h, PL_W * P, h);
+}
+
+function render() {
+  ctx.setTransform(sx, 0, 0, sx, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+  var tf = W < 700 ? 1.3 : 1;
+
+  ctx.drawImage(sky, 0, 0);
+  var o1 = distFar % W;
+  ctx.drawImage(hills, -o1, GROUND - 160); ctx.drawImage(hills, W - o1, GROUND - 160);
+
+  var M = W + 120;
+  ctx.globalAlpha = 0.9;
+  DECOR_ITEMS.forEach(function (it) {
+    var d = DECOR[it.k], x = (((it.x - distMid) % M) + M) % M - 60;
+    ctx.drawImage(d.c, 0, 0, d.w, d.h, Math.round(x), GROUND - 6 - d.h * P, d.w * P, d.h * P);
+  });
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = '#2b1d3f'; ctx.fillRect(0, GROUND, W, H - GROUND);
+  ctx.fillStyle = '#7a5aa6'; ctx.fillRect(0, GROUND, W, 4);
+  ctx.fillStyle = '#4a3470'; ctx.fillRect(0, GROUND + 4, W, 3);
+  ctx.fillStyle = '#3d2a5a';
+  specks.forEach(function (s) {
+    var x = (((s.x - distGround) % W) + W) % W;
+    ctx.fillRect(Math.round(x), Math.round(s.y), s.w, 3);
+  });
+
+  obstacles.forEach(function (o) {
+    ctx.drawImage(o.def.c, 0, 0, o.def.w, o.def.h, Math.round(o.x), Math.round(o.y), o.def.w * P, o.def.h * P);
+  });
+  drawPlayer();
+
+  /* счёт: лаймовый, рекорд светлее слева от него */
+  var hs = 17 * tf, s1 = pad5(Math.floor(score));
+  text(s1, W - 14, 14 + hs, hs, '#B6FF1A', 'right');
+  var wd = ctx.measureText(s1).width;
+  text('HI ' + pad5(best), W - 14 - wd - 14, 14 + hs, hs, '#cfc6e6', 'right');
+
+  if (state === 'ready') {
+    ctx.fillStyle = 'rgba(10,5,25,.5)'; ctx.fillRect(0, 0, W, H);
+    if (Math.floor(animT / 25) % 2 === 0) text('Нажми, чтобы начать', W / 2, 120, 22 * tf, '#B6FF1A');
+    text('Тап или пробел: прыжок', W / 2, 168, 14 * tf, '#fff');
+    text('↓ или кнопка: пригнуться', W / 2, 168 + 26 * tf, 14 * tf, '#fff');
+  } else if (state === 'dead') {
+    ctx.fillStyle = 'rgba(10,5,25,.45)'; ctx.fillRect(0, 0, W, H);
+    text('ИГРА ОКОНЧЕНА', W / 2, 115, 28 * tf, '#fff');
+    text('Счёт ' + finalScore + ' · Рекорд ' + best, W / 2, 160, 16 * tf, '#B6FF1A');
+    text('Тап или пробел: ещё раз', W / 2, 200, 13 * tf, '#cfc6e6');
+  } else if (paused) {
+    ctx.fillStyle = 'rgba(10,5,25,.55)'; ctx.fillRect(0, 0, W, H);
+    text('ПАУЗА', W / 2, 130, 32 * tf, '#fff');
+    text('Тап или пробел: продолжить', W / 2, 175, 14 * tf, '#B6FF1A');
+  }
+}
+
+/* ---------- таблица лидеров ---------- */
+function readLocal() {
+  try { return JSON.parse(store.get(LS_SCORES) || '[]'); } catch (e) { return []; }
+}
+var LB = {
+  remote: !!(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY),
+  base: function () { return CONFIG.SUPABASE_URL.replace(/\/+$/, '') + '/rest/v1/' + CONFIG.TABLE; },
+  hdr: function () { return { apikey: CONFIG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CONFIG.SUPABASE_ANON_KEY }; },
+  load: function () {
+    if (!this.remote) return Promise.resolve(readLocal().slice(0, CONFIG.TOP));
+    var u = this.base() + '?select=name,score&order=score.desc,created_at.asc&limit=' + CONFIG.TOP;
+    return fetch(u, { headers: this.hdr() }).then(function (r) {
+      if (!r.ok) throw new Error('load ' + r.status); return r.json();
+    });
+  },
+  submit: function (name, sc) {
+    if (!this.remote) {
+      var a = readLocal(); a.push({ name: name, score: sc });
+      a.sort(function (x, y) { return y.score - x.score; });
+      store.set(LS_SCORES, JSON.stringify(a.slice(0, 50)));
+      return Promise.resolve();
+    }
+    var h = Object.assign({ 'Content-Type': 'application/json', Prefer: 'return=minimal' }, this.hdr());
+    return fetch(this.base(), { method: 'POST', headers: h, body: JSON.stringify({ name: name, score: sc }) })
+      .then(function (r) { if (!r.ok) throw new Error('save ' + r.status); });
+  }
+};
+$('dg-note').textContent = LB.remote ? 'Лучшие результаты всех игроков.' : 'Рекорды пока сохраняются только на этом устройстве.';
+
+function setMsg(s, err) { var m = $('dg-msg'); m.textContent = s; m.className = 'dg-msg' + (err ? ' err' : ''); }
+function cleanName(s) { return s.replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 12); }
+
+function renderBoard(rows, mine) {
+  var ol = $('dg-lb'); ol.innerHTML = '';
+  if (!rows.length) {
+    var e = document.createElement('li'); e.className = 'empty'; e.textContent = 'Пока пусто. Стань первым!'; ol.appendChild(e); return;
+  }
+  var medals = ['🥇', '🥈', '🥉'], used = false;
+  rows.forEach(function (r, i) {
+    var li = document.createElement('li');
+    if (!used && mine && r.name === mine.name && r.score === mine.score) { li.className = 'me'; used = true; }
+    var n = document.createElement('span'); n.className = 'n'; n.textContent = medals[i] || (i + 1) + '.';
+    var nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = r.name;
+    var sc = document.createElement('span'); sc.className = 'sc'; sc.textContent = r.score;
+    li.appendChild(n); li.appendChild(nm); li.appendChild(sc); ol.appendChild(li);
+  });
+}
+function refreshBoard(mine) {
+  return LB.load().then(function (rows) { renderBoard(rows, mine); })
+    .catch(function () { setMsg('Не удалось загрузить таблицу лидеров.', true); });
+}
+
+$('dg-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  if (submitted || state !== 'dead') return;
+  var name = cleanName($('dg-name').value);
+  if (!name) { setMsg('Впиши имя, чтобы попасть в таблицу.', true); return; }
+  $('dg-save').disabled = true; setMsg('Отправляю…');
+  var sc = finalScore;
+  LB.submit(name, sc).then(function () {
+    submitted = true; store.set(LS_NAME, name);
+    $('dg-form').style.display = 'none';
+    setMsg('Записано! Ты в таблице, ' + name + '.');
+    $('dg-name').blur();
+    if (!window.matchMedia('(pointer:coarse)').matches) { try { cv.focus({ preventScroll: true }); } catch (err) {} }
+    goal('game_score');
+    return refreshBoard({ name: name, score: sc });
+  }).catch(function () {
+    $('dg-save').disabled = false; setMsg('Не получилось отправить результат. Попробуй ещё раз.', true);
+  });
+});
+
+/* ---------- цикл ---------- */
+reset();
+fit();
+if (window.ResizeObserver) new ResizeObserver(fit).observe(cv);
+addEventListener('resize', fit);
+var last = performance.now();
+function loop(t) {
+  var dt = Math.min(2.5, (t - last) / 16.667); last = t;
+  if (visible) { step(dt); render(); }
+  requestAnimationFrame(loop);
+}
+refreshBoard();
+requestAnimationFrame(loop);
+})();
 </script>
 
 <script>

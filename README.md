@@ -36,3 +36,17 @@
 
 Settings → Pages → Source: Deploy from a branch (main) **или** GitHub Actions.
 Settings → Actions → General → Workflow permissions: **Read and write permissions**.
+
+## Игра «Потехе час»
+
+Внизу страницы (`index.html`, блок `#potehe`) живёт мини-игра: пиксельный Андрей бежит от нечисти.
+Прыжок: тап по игре или пробел, пригнуться: кнопка или ↓. Игра стоит на паузе, пока её не видно на экране.
+
+Таблица лидеров по умолчанию хранит рекорды только в браузере посетителя. Чтобы её видели все:
+
+1. Зарегистрируйтесь на supabase.com и создайте проект.
+2. SQL Editor → New query → вставьте содержимое `leaderboard-setup.sql` → Run.
+3. Project Settings → API: скопируйте Project URL и anon public key.
+4. В `index.html` найдите `SUPABASE_URL` и `SUPABASE_ANON_KEY` (блок `CONFIG` в начале скрипта игры) и вставьте значения.
+
+Anon-ключ публичный, так и задумано: политики в SQL разрешают только читать и добавлять результаты.
