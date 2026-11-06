@@ -3,7 +3,7 @@
 window.CONFIG = {
   // Адрес Firebase Realtime Database, например:
   // "https://my-project-default-rtdb.europe-west1.firebasedatabase.app"
-  FIREBASE_URL: "",
+  FIREBASE_URL: "https://basketboyz-default-rtdb.firebaseio.com",
   // Название «комнаты». Придумайте длинное и неочевидное, оно работает как пароль.
-  ROOM: "saturday-basket-change-me"
+  ROOM: "bb-PKFpTlj8SPCKoBr2ft6VT4-4"
 };
