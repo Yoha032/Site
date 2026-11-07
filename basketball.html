@@ -76,6 +76,53 @@ select,textarea,input{width:100%;font:inherit;padding:10px;border-radius:10px;bo
 #undo{display:flex;align-items:center;gap:6px;height:48px;padding:0 14px;border-radius:14px;border:1px solid #3A3A3A;background:var(--bg);font-weight:700;font-size:14px}
 #finish{flex:1;height:48px;border-radius:14px;border:0;background:#E5262B;color:#fff;font-weight:800;font-size:15px}
 .empty{color:var(--mut);text-align:center;padding:18px 8px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0 12px}
+.tab{display:flex;align-items:center;justify-content:center;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--mut);font:inherit;font-weight:700;font-size:14px;text-decoration:none}
+.tab.on{background:var(--tx);color:#0A0A0A;border-color:var(--tx)}
+.timer{display:flex;align-items:center;gap:10px}
+.tcl{font:700 32px/1 Unbounded,sans-serif;min-width:118px}
+.tcl.run{color:var(--acc)}
+.tcl.low{color:#FFB020}
+.tcl.over{color:#E5262B;animation:bl 1s steps(2,start) infinite}
+@keyframes bl{50%{opacity:.35}}
+.timer .sp{flex:1;font-size:12px}
+#tgo{height:44px;padding:0 16px;border-radius:12px;border:0;background:var(--acc);color:#0A0A0A;font-weight:800}
+#trst{width:44px;height:44px;border-radius:12px;border:1px solid #3A3A3A;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:0}
+.who{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:6px 4px;background:none;border:0;border-top:1px solid var(--line);text-align:left;font-size:16px}
+.who:first-of-type{border-top:0}
+.who .ck{width:26px;height:26px;border-radius:8px;border:2px solid var(--acc);background:var(--acc);color:#0A0A0A;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+.who.off .ck{background:none;border-color:#555}
+.who.off .nm2{color:#777;text-decoration:line-through}
+.who i{font-style:normal;font-size:11px;color:var(--acc);letter-spacing:.06em;margin-left:6px;text-transform:uppercase}
+.who small{margin-left:auto;color:#FF8A8A;font-size:12px}
+.toprow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.toprow a{font-size:13px;font-weight:700;color:var(--acc);text-decoration:none;white-space:nowrap}
+#dlg{position:fixed;inset:0;z-index:50}
+#dlg[hidden]{display:none}
+.dback{position:absolute;inset:0;background:rgba(0,0,0,.65)}
+.dbox{position:absolute;top:0;left:0;right:0;max-width:520px;margin:0 auto;background:#161616;border:1px solid var(--line);border-top:0;border-radius:0 0 22px 22px;padding:calc(18px + env(safe-area-inset-top,0px)) 16px 16px;animation:dn .18s ease-out}
+@keyframes dn{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+.dt{font:700 18px Unbounded,sans-serif;text-align:center}
+.dres{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:14px 0 8px;text-align:center}
+.dres .ds{display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:800}
+.dres .ds b{font:700 40px/1.1 Unbounded,sans-serif}
+.dres .ds span{display:flex;align-items:center;gap:6px;font-size:14px}
+.dres .vs{font:700 28px Unbounded,sans-serif;color:var(--mut)}
+.dnote{text-align:center;color:var(--mut);font-size:14px;margin-bottom:14px}
+.dnote.warn{color:#FFB020}
+.dbtn{display:grid;gap:8px}
+.dbtn button{height:50px;border-radius:14px;border:0;font-weight:800;font-size:15px}
+#dok{background:#E5262B;color:#fff}
+#dno{background:#3DDC84;color:#0A0A0A}
+.pg{margin-bottom:12px}
+.ph{font-weight:800;margin-bottom:4px}
+.lg{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}
+.lg .mn{width:44px;color:var(--mut);font-weight:700;flex:none}
+.lg span:nth-child(2){flex:1;min-width:0}
+.lg small{color:var(--mut);width:40px;text-align:right}
+.lg i{font-style:normal;color:#FF8A8A;font-size:12px;margin-left:4px}
+.lg.fin{color:var(--acc)}
+.lg.fin .mn{color:var(--acc)}
 </style>
 </head>
 <body>
@@ -86,18 +133,29 @@ select,textarea,input{width:100%;font:inherit;padding:10px;border-radius:10px;bo
 </header>
 <div class="mut" id="date"></div>
 <h1>Баскетбол<span class="st" id="st"></span></h1>
+<nav class="tabs" aria-label="Разделы">
+  <button class="tab on" data-view="score" id="tScore">Счёт</button>
+  <button class="tab" data-view="roster" id="tRoster">Состав</button>
+  <a class="tab" id="statsLink" href="basketball-stats.html">Таблица</a>
+</nav>
+
+<section id="vScore">
 
 <div class="card"><div class="lab">ПОБЕДЫ СЕГОДНЯ</div><div class="wins" id="wins"></div></div>
+<div class="card timer" id="timer">
+  <span class="tcl" id="tclock">07:00</span>
+  <span class="sp mut" id="tlab">таймер игры</span>
+  <button id="trst" aria-label="Сбросить таймер"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+  <button id="tgo">Старт</button>
+</div>
 <div id="teams"></div>
 
 <details class="card" id="more">
-  <summary>История, составы, настройки</summary>
+  <summary>Протокол, история, настройки</summary>
   <div class="sub">Играют сейчас</div>
   <div class="two" id="sel"></div>
-  <div class="sub">Составы из Telegram</div>
-  <textarea id="rt" rows="7" placeholder="Вставьте сюда сообщение с составами"></textarea>
-  <button class="wide" id="rload">Загрузить составы</button>
-  <div class="mut" id="rmsg" style="margin-top:6px"></div>
+  <div class="sub">Протокол сегодняшней встречи</div>
+  <div id="proto"></div>
   <div class="sub">История игр</div>
   <div id="hist"></div>
   <button class="ghost" id="reset">Сбросить всё</button>
@@ -110,85 +168,55 @@ select,textarea,input{width:100%;font:inherit;padding:10px;border-radius:10px;bo
     <button id="finish">Завершить игру</button>
   </div>
 </div>
+</section>
+
+<section id="vRoster" hidden>
+  <div class="card"><div class="lab">КТО ПРИШЁЛ</div><div class="mut" id="rcount" style="margin-top:4px"></div></div>
+  <div id="rlist"></div>
+  <div class="card">
+    <div class="lab">ДОБАВИТЬ ИГРОКА, КОТОРОГО НЕТ В СПИСКЕ</div>
+    <div class="two" style="margin-top:8px"><input id="gname" placeholder="Имя" maxlength="30" autocomplete="off"><select id="gteam" aria-label="В какую команду"></select></div>
+    <button class="wide" id="gadd">Добавить в команду</button>
+    <div class="mut" id="gmsg" style="margin-top:6px" role="status"></div>
+  </div>
+  <details class="card">
+    <summary>Загрузить составы из Telegram</summary>
+  <textarea id="rt" rows="7" placeholder="Вставьте сюда сообщение с составами"></textarea>
+  <button class="wide" id="rload">Загрузить составы</button>
+  <div class="mut" id="rmsg" style="margin-top:6px"></div>
+  </details>
+</section>
 </main>
+<div id="dlg" hidden>
+  <div class="dback" id="dback"></div>
+  <div class="dbox" role="alertdialog" aria-modal="true" aria-labelledby="dtt">
+    <div class="dt" id="dtt">Завершить игру?</div>
+    <div class="dres" id="dres"></div>
+    <div class="dnote" id="dnote"></div>
+    <div class="dbtn"><button id="dok">Подтвердить: завершить игру</button><button id="dno">Продолжить игру</button></div>
+  </div>
+</div>
 <script src="basketball-config.js"></script>
+<script src="basketball-core.js"></script>
 <script>
 var TG=window.Telegram&&Telegram.WebApp;
 if(TG&&TG.initData){
   document.documentElement.classList.add('tg');
   try{TG.ready();TG.expand();TG.setHeaderColor('#0A0A0A');TG.setBackgroundColor('#0A0A0A');if(TG.disableVerticalSwipes)TG.disableVerticalSwipes()}catch(e){}
 }
+try{if(TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param==='table'){location.replace('basketball-stats.html?app=1')}}catch(e){}
 var EMB=(top!==self)||/[?&]app/.test(location.search);
 document.getElementById('back').href=EMB?'media.html?app=1':'media.html';
 document.getElementById('logo').href=EMB?'index.html?app=1':'index.html';
-var C=window.CONFIG||{};
-var BASE=(C.FIREBASE_URL||'').replace(/\/+$/,'');
-var SYNC=!!BASE;
-var EURL=BASE+'/rooms/'+encodeURIComponent(C.ROOM||'saturday')+'/events.json';
-var LKEY='bb-events-v3';
-var COL={w:'#f5f5f5',b:'#000',r:'#E5262B'};
-var remote=[],pending=[],sent={},busy=false,S=null,last='',editP=null,openR={},pr=false,mt=null;
+document.getElementById('statsLink').href=EMB?'basketball-stats.html?app=1':'basketball-stats.html';
+var remote=[],pending=[],sent={},busy=false,S=null,last='',editP=null,openR={},pr=false,mt=null,view='score',beeped=-1,ac=null;
 function $(i){return document.getElementById(i)}
-function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
-function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
-function fmt(d){return new Date(d+'T12:00:00').toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
-function dot(k){return '<span class="dot" style="background:'+COL[k]+'"></span>'}
 function setSt(ok){var s=$('st');s.textContent=SYNC?(ok?'● онлайн':'● нет связи'):'● только это устройство';s.className='st'+(SYNC&&!ok?' bad':'')}
 function toast(t){if(pr)return;$('msg').textContent=t;clearTimeout(mt);mt=setTimeout(function(){if(!pr)$('msg').textContent=''},4000)}
 
-/* ---- очки команды = сумма очков её игроков в текущей игре ---- */
-function teamScore(St,k){
-  var t=St.roster&&St.roster.teams[k];if(!t)return 0;
-  return t.players.reduce(function(a,p){return a+(St.cur.pts[p.n]||0)},0);
-}
-/* не больше двух игр подряд: команда, сыгравшая две игры подряд, уступает место */
-function streakOf(games,k,d){var n=0;for(var i=games.length-1;i>=0;i--){var g=games[i];if(g.d!==d)break;if(g.a===k||g.b===k)n++;else break}return n}
-function nextPair(games,g){
-  var third=['w','b','r'].filter(function(k){return k!==g.a&&k!==g.b})[0];
-  var stay=g.dr?g.b:(g.sa>g.sb?g.a:g.b),other=stay===g.a?g.b:g.a,benched=null;
-  if(streakOf(games,stay,g.d)>=2&&streakOf(games,other,g.d)<2){benched=stay;stay=other}
-  if(g.dr&&!benched){var lv=stay===g.a?g.b:g.a;if(streakOf(games,lv,g.d)>=2)benched=lv}
-  return {a:stay,b:third,benched:benched};
-}
-function winners(g){return g.dr?[g.a,g.b]:[g.sa>g.sb?g.a:g.b]}
-
-/* ---- состояние целиком восстанавливается из журнала событий ---- */
-function build(){
-  var seen={},snaps=[],St={names:{w:'Белые',b:'Чёрные',r:'Красные'},cur:{a:'w',b:'b',pts:{},la:0,lb:0},games:[],roster:null,adj:[],w:{w:0,b:0,r:0},td:{w:0,b:0,r:0}};
-  remote.concat(pending).forEach(function(e){
-    if(seen[e.id])return;seen[e.id]=1;
-    var c=St.cur;
-    if(e.t==='pt'){
-      var v=(c.pts[e.p]||0)+e.n;if(v<0)return;
-      snaps.push({cur:JSON.parse(JSON.stringify(c)),g:St.games.length});
-      c.pts[e.p]=v;
-    }
-    else if(e.t==='score'){var lk=e.s==='a'?'la':'lb';c[lk]=Math.max(0,c[lk]+e.n)}
-    else if(e.t==='setscore'){c.la=e.sa;c.lb=e.sb}
-    else if(e.t==='teams'){c.a=e.a;c.b=e.b}
-    else if(e.t==='finish'){
-      if(c.a===c.b)return;
-      var sa=e.v?teamScore(St,c.a):c.la,sb=e.v?teamScore(St,c.b):c.lb,dr=sa===sb;
-      if(dr&&!e.dr)return;
-      snaps.push({cur:JSON.parse(JSON.stringify(c)),g:St.games.length});
-      var pts={};for(var n in c.pts)if(c.pts[n]>0)pts[n]=c.pts[n];
-      St.games.push({a:c.a,b:c.b,sa:sa,sb:sb,d:e.d,dr:dr,pts:pts});
-      var np=nextPair(St.games,St.games[St.games.length-1]);
-      St.cur={a:np.a,b:np.b,pts:{},la:0,lb:0};
-    }
-    else if(e.t==='undo'){var sn=snaps.pop();if(sn){St.games.length=sn.g;St.cur=sn.cur}}
-    else if(e.t==='adj'){St.adj.push({k:e.k,n:e.n,d:e.d})}
-    else if(e.t==='roster'){St.roster=e.r;for(var k2 in e.r.teams)St.names[k2]=e.r.teams[k2].name}
-  });
-  var tdate=today();
-  St.games.forEach(function(g){winners(g).forEach(function(k){St.w[k]++;if(g.d===tdate)St.td[k]++})});
-  St.adj.forEach(function(x){St.w[x.k]+=x.n;if(x.d===tdate)St.td[x.k]+=x.n});
-  return St;
-}
-
 function send(ev){
-  ev.id=uid();
+  ev.id=uid();ev.ts=Date.now();
   if(!SYNC){remote.push(ev);try{localStorage.setItem(LKEY,JSON.stringify(remote))}catch(e){}render();return}
   pending.push(ev);render();flush();
 }
@@ -210,21 +238,38 @@ function refresh(){
   });
 }
 
+function renderRoster(){
+  var R=S.roster;
+  if(!R){$('rlist').innerHTML='<div class="card empty">Составы ещё не загружены. Откройте «Загрузить составы из Telegram» ниже.</div>';$('rcount').textContent='';$('gteam').innerHTML='';return}
+  var tot=0,here=0;
+  $('rlist').innerHTML=['w','b','r'].map(function(k){
+    var ps=R.teams[k].players,h=ps.filter(function(p){return !p.x}).length;tot+=ps.length;here+=h;
+    return '<div class="card"><div class="lab" style="display:flex;align-items:center;gap:6px">'+dot(k)+esc(S.names[k])+' · на месте '+h+' из '+ps.length+'</div>'+
+      ps.map(function(p){
+        var nm=esc(p.n);
+        return '<button class="who'+(p.x?' off':'')+'" data-abs="'+nm+'" data-on="'+(p.x?0:1)+'" aria-pressed="'+(!p.x)+'"><span class="ck">'+(p.x?'':'✓')+'</span><span class="nm2">'+nm+'</span>'+(p.g?'<i>гость</i>':'')+(p.x?'<small>не пришёл</small>':'')+'</button>';
+      }).join('')+'</div>';
+  }).join('');
+  $('rcount').textContent='На встрече '+here+' из '+tot+'. Нажмите на имя, чтобы отметить, что игрок не пришёл.';
+  var gt=$('gteam'),cv=gt.value;
+  gt.innerHTML=['w','b','r'].map(function(k){return '<option value="'+k+'">'+esc(S.names[k])+'</option>'}).join('');
+  if(cv)gt.value=cv;
+}
 function render(){
-  S=build();
-  var key=JSON.stringify([S,editP,openR]);
+  S=build(remote.concat(pending));
+  var key=JSON.stringify([S,editP,openR,view]);
   if(key===last)return;
   last=key;
   var c=S.cur,R=S.roster,third=['w','b','r'].filter(function(k){return k!==c.a&&k!==c.b})[0];
   $('wins').innerHTML=['w','b','r'].map(function(k){return '<div class="win"><b>'+S.td[k]+'</b><span>'+dot(k)+esc(S.names[k])+'</span></div>'}).join('');
 
   if(!R){
-    $('teams').innerHTML='<div class="card empty">Составы ещё не загружены.<br>Откройте «История, составы, настройки» внизу и вставьте сообщение из канала.</div>';
+    $('teams').innerHTML='<div class="card empty">Составы ещё не загружены.<br>Откройте вкладку «Состав» и вставьте сообщение из канала.</div>';
   }else{
     function team(k){
       var t=R.teams[k],sc=teamScore(S,k);
       return '<div class="team tm-'+k+'"><div class="th">'+dot(k)+'<span class="nm">'+esc(S.names[k])+'<i>ИГРАЕТ</i></span><span class="sc">'+sc+'</span></div>'+
-      t.players.map(function(p){
+      t.players.filter(function(p){return !p.x}).map(function(p){
         var v=c.pts[p.n]||0,ed=editP===p.n,nm=esc(p.n);
         var bt=ed?[-2,-3]:[2,3];
         return '<div class="p'+(ed?' ed':'')+'"><span class="n">'+nm+'</span>'+
@@ -235,12 +280,16 @@ function render(){
     var rt=R.teams[third],op=!!openR[third];
     $('teams').innerHTML=team(c.a)+team(c.b)+
       '<button class="rest" data-open="'+third+'" aria-expanded="'+op+'">'+dot(third)+'<span class="nm">'+esc(S.names[third])+'<i>ОТДЫХАЕТ</i></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A3A3A3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transform:rotate('+(op?180:0)+'deg)"><path d="m6 9 6 6 6-6"/></svg></button>'+
-      (op?'<div class="rl">'+rt.players.map(function(p){return '<div>'+esc(p.n)+'</div>'}).join('')+'</div>':'');
+      (op?'<div class="rl">'+rt.players.filter(function(p){return !p.x}).map(function(p){return '<div>'+esc(p.n)+'</div>'}).join('')+'</div>':'');
   }
 
   function opts(sel){return ['w','b','r'].map(function(k){return '<option value="'+k+'"'+(k===sel?' selected':'')+'>'+esc(S.names[k])+'</option>'}).join('')}
   $('sel').innerHTML='<select data-s="a" aria-label="Первая команда">'+opts(c.a)+'</select><select data-s="b" aria-label="Вторая команда">'+opts(c.b)+'</select>';
 
+  $('vScore').hidden=view!=='score';$('vRoster').hidden=view!=='roster';
+  $('tScore').className='tab'+(view==='score'?' on':'');$('tRoster').className='tab'+(view==='roster'?' on':'');
+  renderRoster();
+  $('proto').innerHTML=protoHtml(S,today());
   var by={},ab={};
   S.games.forEach(function(g){(by[g.d]=by[g.d]||[]).push(g)});
   S.adj.forEach(function(x){(ab[x.d]=ab[x.d]||[]).push(x)});
@@ -255,6 +304,7 @@ function render(){
       (top?'<div class="mut">Больше всех очков: '+top+'</div>':'')+
       (by[d]||[]).slice().reverse().map(function(g){return '<div class="row"><span>'+dot(g.a)+esc(S.names[g.a])+' — '+dot(g.b)+esc(S.names[g.b])+(g.dr?' <span class="mut">· ничья</span>':'')+'</span><b>'+g.sa+':'+g.sb+'</b></div>'}).join('')+'</div>';
   }).join(''):'<div class="mut">Пока нет сыгранных игр</div>';
+  tick();
 }
 
 /* ---- разбор сообщения с составами ---- */
@@ -276,14 +326,23 @@ function parse(txt){
 function ask(text,cb){
   if(TG&&TG.initData&&TG.showConfirm){TG.showConfirm(text,cb)}else{cb(confirm(text))}
 }
-function showDraw(){
-  var c=S.cur,sc=teamScore(S,c.a);
-  pr=true;
-  $('msg').innerHTML='Счёт равный '+sc+':'+sc+'. Записать ничью?<div class="sm"><button data-draw="1">Ничья: по очку обеим</button><button data-cancel="1">Продолжить игру</button></div>';
-}
-
 document.addEventListener('click',function(e){
-  var t=e.target.closest('button[data-pt]');
+  unlock();
+  var t=e.target.closest('button[data-view]');
+  if(t){view=t.dataset.view;window.scrollTo(0,0);render();return}
+  t=e.target.closest('button[data-abs]');
+  if(t){
+    var nm=t.dataset.abs,on=t.dataset.on==='1';
+    if(on&&(S.cur.pts[nm]||0)>0){$('gmsg').textContent='У игрока '+nm+' уже есть очки в этой игре. Сначала исправьте их на экране счёта.';return}
+    $('gmsg').textContent='';send({t:'pabs',n:nm,on:on});return;
+  }
+  if(e.target.id==='gadd'){
+    var gn=$('gname').value.replace(/\s+/g,' ').trim();
+    if(!S.roster){$('gmsg').textContent='Сначала загрузите составы.';return}
+    if(!gn){$('gmsg').textContent='Введите имя игрока.';return}
+    send({t:'padd',tm:$('gteam').value,n:gn});$('gname').value='';$('gmsg').textContent='Добавлен: '+gn+'.';return;
+  }
+  t=e.target.closest('button[data-pt]');
   if(t){
     var p=t.dataset.p,n=Number(t.dataset.n),v=S.cur.pts[p]||0;
     if(pr){pr=false;$('msg').textContent=''}
@@ -294,13 +353,6 @@ document.addEventListener('click',function(e){
   if(t){editP=editP===t.dataset.edit?null:t.dataset.edit;render();return}
   t=e.target.closest('button[data-open]');
   if(t){var k=t.dataset.open;openR[k]=!openR[k];render();return}
-  if(e.target.closest('button[data-draw]')){
-    var c=S.cur,g={a:c.a,b:c.b,sa:teamScore(S,c.a),sb:teamScore(S,c.b),d:today(),dr:true},np=nextPair(S.games.concat([g]),g);
-    pr=false;$('msg').textContent='';
-    toast('Ничья: по очку '+S.names[c.a]+' и '+S.names[c.b]+'.'+(np.benched?' '+S.names[np.benched]+' сыграла две игры подряд и уступает место.':'')+' Следующая игра: '+S.names[np.a]+' — '+S.names[np.b]+'.');
-    send({t:'finish',d:today(),dr:true,v:2});editP=null;return;
-  }
-  if(e.target.closest('button[data-cancel]')){pr=false;$('msg').textContent='';return}
 });
 document.addEventListener('change',function(e){
   var s=e.target.dataset&&e.target.dataset.s;if(!s)return;
@@ -308,14 +360,62 @@ document.addEventListener('change',function(e){
   if(s==='a'){a=v;if(v===b)b=c.a}else{b=v;if(v===a)a=c.b}
   send({t:'teams',a:a,b:b});
 });
+/* ---- таймер игры ---- */
+function unlock(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){}}
+function beep(){
+  try{if(ac)[0,.25,.5].forEach(function(d){var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;g.gain.value=.25;o.connect(g);g.connect(ac.destination);o.start(ac.currentTime+d);o.stop(ac.currentTime+d+.15)})}catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate([200,100,200,100,400])}catch(e){}
+}
+function tick(){
+  if(!S)return;
+  var t=S.cur.tm,el=elapsed(t,Date.now()),rem=Math.max(0,GAME_MS-el),sec=Math.ceil(rem/1000);
+  $('tclock').textContent=pad(Math.floor(sec/60))+':'+pad(sec%60);
+  $('tclock').className='tcl'+(rem===0&&el>0?' over':(t.run&&rem<=60000?' low':(t.run?' run':'')));
+  $('tgo').textContent=t.run?'Пауза':(el>0?'Продолжить':'Старт');
+  $('tlab').textContent=rem===0&&el>0?'время вышло':(t.run?'идёт игра':(el>0?'на паузе':'таймер игры'));
+  if(t.run&&rem===0&&beeped!==S.games.length){
+    beeped=S.games.length;
+    if(el-GAME_MS<5000){beep();toast('Время вышло. Завершите игру.')}
+  }
+}
+setInterval(tick,250);
+$('tgo').onclick=function(){unlock();send({t:S.cur.tm.run?'tpause':'tstart'})};
+$('trst').onclick=function(){ask('Сбросить таймер игры на '+(GAME_MS/60000)+':00?',function(ok){if(ok)send({t:'treset'})})};
+
+/* ---- завершение игры: сначала окно подтверждения ---- */
+var dlgS=null;
+function resultNote(d){
+  var dr=d.sa===d.sb,g={a:d.a,b:d.b,sa:d.sa,sb:d.sb,d:today(),dr:dr},np=nextPair(S.games.concat([g]),g);
+  return {np:np,text:(dr?'Ничья: по очку каждой команде.':'Победа: '+S.names[d.sa>d.sb?d.a:d.b]+'.')+(np.benched?' '+S.names[np.benched]+' сыграла две игры подряд и уступает место.':'')+' Следующая игра: '+S.names[np.a]+' — '+S.names[np.b]+'.'};
+}
+function fillDlg(warn){
+  var d=dlgS;
+  $('dres').innerHTML='<div class="ds"><span>'+dot(d.a)+esc(S.names[d.a])+'</span><b>'+d.sa+'</b></div><div class="vs">:</div><div class="ds"><span>'+dot(d.b)+esc(S.names[d.b])+'</span><b>'+d.sb+'</b></div>';
+  $('dnote').className='dnote'+(warn?' warn':'');
+  $('dnote').textContent=warn||resultNote(d).text;
+}
+function closeDlg(){$('dlg').hidden=true;dlgS=null}
 $('finish').onclick=function(){
-  var c=S.cur;
   if(!S.roster){toast('Сначала загрузите составы');return}
-  var sa=teamScore(S,c.a),sb=teamScore(S,c.b);
-  if(sa===sb){showDraw();return}
-  var g={a:c.a,b:c.b,sa:sa,sb:sb,d:today(),dr:false},np=nextPair(S.games.concat([g]),g),win=sa>sb?c.a:c.b;
-  toast('Победили: '+S.names[win]+' ('+sa+':'+sb+').'+(np.benched?' '+S.names[np.benched]+' сыграла две игры подряд и уступает место.':'')+' Следующая игра: '+S.names[np.a]+' — '+S.names[np.b]+'.');
-  send({t:'finish',d:today(),v:2});editP=null;
+  var c=S.cur;
+  dlgS={a:c.a,b:c.b,sa:teamScore(S,c.a),sb:teamScore(S,c.b)};
+  fillDlg('');$('dlg').hidden=false;$('dno').focus();
+};
+$('dno').onclick=closeDlg;
+$('dback').onclick=closeDlg;
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&dlgS)closeDlg()});
+$('dok').onclick=function(){
+  if(!dlgS)return;
+  var c=S.cur,sa=teamScore(S,c.a),sb=teamScore(S,c.b);
+  /* пока окно было открыто, счёт мог измениться на другом телефоне */
+  if(c.a!==dlgS.a||c.b!==dlgS.b||sa!==dlgS.sa||sb!==dlgS.sb){
+    dlgS={a:c.a,b:c.b,sa:sa,sb:sb};fillDlg('Счёт изменился. Проверьте и подтвердите ещё раз.');return;
+  }
+  var r=resultNote(dlgS),dr=sa===sb;
+  closeDlg();
+  toast(r.text.replace(/^Победа: /,'Победили: '));
+  var ev={t:'finish',d:today(),v:2};if(dr)ev.dr=true;
+  send(ev);editP=null;
 };
 $('undo').onclick=function(){
   pr=false;$('msg').textContent='';
