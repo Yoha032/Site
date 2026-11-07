@@ -76,8 +76,8 @@ select,textarea,input{width:100%;font:inherit;padding:10px;border-radius:10px;bo
 #undo{display:flex;align-items:center;gap:6px;height:48px;padding:0 14px;border-radius:14px;border:1px solid #3A3A3A;background:var(--bg);font-weight:700;font-size:14px}
 #finish{flex:1;height:48px;border-radius:14px;border:0;background:#E5262B;color:#fff;font-weight:800;font-size:15px}
 .empty{color:var(--mut);text-align:center;padding:18px 8px}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0 12px}
-.tab{display:flex;align-items:center;justify-content:center;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--mut);font:inherit;font-weight:700;font-size:14px;text-decoration:none}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 12px}
+.tab{display:flex;align-items:center;justify-content:center;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--mut);font:inherit;font-weight:700;font-size:13px;text-decoration:none;padding:0}
 .tab.on{background:var(--tx);color:#0A0A0A;border-color:var(--tx)}
 .timer{display:flex;align-items:center;gap:10px}
 .tcl{font:700 32px/1 Unbounded,sans-serif;min-width:118px}
@@ -95,6 +95,27 @@ select,textarea,input{width:100%;font:inherit;padding:10px;border-radius:10px;bo
 .who.off .nm2{color:#777;text-decoration:line-through}
 .who i{font-style:normal;font-size:11px;color:var(--acc);letter-spacing:.06em;margin-left:6px;text-transform:uppercase}
 .who small{margin-left:auto;color:#FF8A8A;font-size:12px}
+.bd main{display:none}
+.bd{overflow:hidden}
+#board{position:fixed;inset:0;z-index:40;background:#0A0A0A;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3vh;padding:2vh 2vw;--s:min(44vw,66vh)}
+#board[hidden]{display:none}
+#brow{display:flex;gap:4vw}
+.bsq{width:var(--s);height:var(--s);border-radius:3vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vh}
+.bsq .bn{font-weight:800;font-size:min(3.4vw,5vh);letter-spacing:.02em;text-align:center;padding:0 2vw}
+.bsq .bs{font:700 min(17vw,28vh)/1 Unbounded,sans-serif}
+.sqw{background:#F5F5F5;color:#0A0A0A}
+.sqb{background:#000;color:#F5F5F5;border:.6vh solid #A7ADB4}
+.sqr{background:#E5262B;color:#fff}
+#bpanel{width:min(60vw,720px);height:min(18vh,160px);background:#161616;border:1px solid #2A2A2A;border-radius:3vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#bclock{font:700 min(10vw,13vh)/1 Unbounded,sans-serif}
+#bclock.run{color:var(--acc)}
+#bclock.low{color:#FFB020}
+#bclock.over{color:#E5262B;animation:bl 1s steps(2,start) infinite}
+#blab{font-size:min(2vw,2.6vh);color:var(--mut);margin-top:.8vh;min-height:1.2em}
+#bx{position:absolute;top:calc(8px + env(safe-area-inset-top,0px));right:12px;width:44px;height:44px;border-radius:50%;border:1px solid #333;background:none;color:#777;font-size:20px;opacity:.5;padding:0}
+#bst{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));left:16px;font-size:13px;color:var(--mut)}
+#bst.bad{color:#ff6b6b}
+#bhint{position:absolute;bottom:calc(8px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;font-size:12px;color:#666}
 .toprow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .toprow a{font-size:13px;font-weight:700;color:var(--acc);text-decoration:none;white-space:nowrap}
 #dlg{position:fixed;inset:0;z-index:50}
@@ -136,6 +157,7 @@ select,textarea,input{width:100%;font:inherit;padding:10px;border-radius:10px;bo
 <nav class="tabs" aria-label="Разделы">
   <button class="tab on" data-view="score" id="tScore">Счёт</button>
   <button class="tab" data-view="roster" id="tRoster">Состав</button>
+  <button class="tab" data-view="board" id="tBoard">Табло</button>
   <a class="tab" id="statsLink" href="basketball-stats.html">Таблица</a>
 </nav>
 
@@ -187,6 +209,13 @@ select,textarea,input{width:100%;font:inherit;padding:10px;border-radius:10px;bo
   </details>
 </section>
 </main>
+<div id="board" hidden>
+  <span id="bst"></span>
+  <button id="bx" aria-label="Выйти из режима табло">✕</button>
+  <div id="brow"></div>
+  <div id="bpanel"><div id="bclock">07:00</div><div id="blab"></div></div>
+  <div id="bhint">Коснитесь экрана один раз, чтобы включился звук сигнала</div>
+</div>
 <div id="dlg" hidden>
   <div class="dback" id="dback"></div>
   <div class="dbox" role="alertdialog" aria-modal="true" aria-labelledby="dtt">
@@ -209,10 +238,21 @@ var EMB=(top!==self)||/[?&]app/.test(location.search);
 document.getElementById('back').href=EMB?'media.html?app=1':'media.html';
 document.getElementById('logo').href=EMB?'index.html?app=1':'index.html';
 document.getElementById('statsLink').href=EMB?'basketball-stats.html?app=1':'basketball-stats.html';
-var remote=[],pending=[],sent={},busy=false,S=null,last='',editP=null,openR={},pr=false,mt=null,view='score',beeped=-1,ac=null;
+var remote=[],pending=[],sent={},busy=false,S=null,last='',editP=null,openR={},pr=false,mt=null,view='score',beeped=-1,ac=null,boardOff=false,wl=null;
+try{boardOff=sessionStorage.getItem('bb-boardoff')==='1'}catch(e){}
+if(/[?&#]board\b/.test(location.search+location.hash)||(TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param==='board'))view='board';
+/* табло включается само на планшете (касание, короткая сторона экрана от 600) в горизонтальном положении */
+function autoBoard(){try{return matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)>=600&&innerWidth>innerHeight}catch(e){return false}}
+function boardOn(){return view==='board'||(autoBoard()&&!boardOff)}
+function wake(on){
+  try{
+    if(on&&navigator.wakeLock&&!wl){navigator.wakeLock.request('screen').then(function(l){wl=l;l.addEventListener('release',function(){wl=null})}).catch(function(){})}
+    else if(!on&&wl){wl.release();wl=null}
+  }catch(e){}
+}
 function $(i){return document.getElementById(i)}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
-function setSt(ok){var s=$('st');s.textContent=SYNC?(ok?'● онлайн':'● нет связи'):'● только это устройство';s.className='st'+(SYNC&&!ok?' bad':'')}
+function setSt(ok){var b=$('bst');b.textContent=SYNC?(ok?'● онлайн':'● нет связи'):'';b.className=SYNC&&!ok?'bad':'';var s=$('st');s.textContent=SYNC?(ok?'● онлайн':'● нет связи'):'● только это устройство';s.className='st'+(SYNC&&!ok?' bad':'')}
 function toast(t){if(pr)return;$('msg').textContent=t;clearTimeout(mt);mt=setTimeout(function(){if(!pr)$('msg').textContent=''},4000)}
 
 function send(ev){
@@ -257,9 +297,14 @@ function renderRoster(){
 }
 function render(){
   S=build(remote.concat(pending));
-  var key=JSON.stringify([S,editP,openR,view]);
+  var bo=boardOn(),key=JSON.stringify([S,editP,openR,view,bo]);
   if(key===last)return;
   last=key;
+  document.body.classList.toggle('bd',bo);$('board').hidden=!bo;wake(bo);
+  if(bo){
+    var bc=S.cur;
+    $('brow').innerHTML=[bc.a,bc.b].map(function(k){return '<div class="bsq sq'+k+'"><div class="bn">'+esc(S.names[k])+'</div><div class="bs">'+teamScore(S,k)+'</div></div>'}).join('');
+  }
   var c=S.cur,R=S.roster,third=['w','b','r'].filter(function(k){return k!==c.a&&k!==c.b})[0];
   $('wins').innerHTML=['w','b','r'].map(function(k){return '<div class="win"><b>'+S.td[k]+'</b><span>'+dot(k)+esc(S.names[k])+'</span></div>'}).join('');
 
@@ -329,7 +374,8 @@ function ask(text,cb){
 document.addEventListener('click',function(e){
   unlock();
   var t=e.target.closest('button[data-view]');
-  if(t){view=t.dataset.view;window.scrollTo(0,0);render();return}
+  if(t){view=t.dataset.view;if(view==='board'){boardOff=false;try{sessionStorage.removeItem('bb-boardoff')}catch(e){}}window.scrollTo(0,0);render();return}
+  if(e.target.id==='bx'){view='score';boardOff=true;try{sessionStorage.setItem('bb-boardoff','1')}catch(e){}render();return}
   t=e.target.closest('button[data-abs]');
   if(t){
     var nm=t.dataset.abs,on=t.dataset.on==='1';
@@ -372,7 +418,11 @@ function tick(){
   $('tclock').textContent=pad(Math.floor(sec/60))+':'+pad(sec%60);
   $('tclock').className='tcl'+(rem===0&&el>0?' over':(t.run&&rem<=60000?' low':(t.run?' run':'')));
   $('tgo').textContent=t.run?'Пауза':(el>0?'Продолжить':'Старт');
-  $('tlab').textContent=rem===0&&el>0?'время вышло':(t.run?'идёт игра':(el>0?'на паузе':'таймер игры'));
+  var lab=rem===0&&el>0?'время вышло':(t.run?'идёт игра':(el>0?'на паузе':'таймер игры'));
+  $('tlab').textContent=lab;
+  $('bclock').textContent=$('tclock').textContent;$('bclock').className=$('tclock').className.replace('tcl','').trim();
+  $('blab').textContent=lab;
+  $('bhint').hidden=!!(ac&&ac.state==='running');
   if(t.run&&rem===0&&beeped!==S.games.length){
     beeped=S.games.length;
     if(el-GAME_MS<5000){beep();toast('Время вышло. Завершите игру.')}
@@ -438,12 +488,15 @@ $('date').textContent=(function(){var s=new Date().toLocaleDateString('ru-RU',{w
 if(SYNC){
   setSt(true);
   refresh().catch(function(){setSt(false)});
-  setInterval(function(){refresh().catch(function(){setSt(false)});flush()},3000);
+  (function loop(){setTimeout(function(){refresh().catch(function(){setSt(false)});flush();loop()},boardOn()?1000:3000)})();
 }else{
   try{remote=JSON.parse(localStorage.getItem(LKEY)||'[]')}catch(e){remote=[]}
   setSt(true);
 }
 render();
+addEventListener('resize',render);
+addEventListener('orientationchange',function(){setTimeout(render,200)});
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&boardOn())wake(true)});
 </script>
 </body>
 </html>
