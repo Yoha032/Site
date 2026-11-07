@@ -70,6 +70,7 @@ details.card summary{cursor:pointer;font-weight:600}
 </header>
 <h1>Результаты встречи<span class="st" id="st"></span></h1>
 <select id="dsel" aria-label="Дата встречи"></select>
+<div class="mut" id="note" style="margin:-4px 0 12px"></div>
 <div id="body"></div>
 <div id="cmsg" role="status"></div>
 </main>
@@ -90,12 +91,11 @@ function setSt(ok){var s=$('st');s.textContent=SYNC?(ok?'● онлайн':'● 
 
 function dates(St){
   var m={};
-  St.games.forEach(function(g){m[g.d]=1});
-  St.adj.forEach(function(x){m[x.d]=1});
-  St.log.forEach(function(x){m[dateOf(x.ts)]=1});
+  St.games.forEach(function(g){if(g.off)m[g.d]=1});
+  St.adj.forEach(function(x){if(x.off)m[x.d]=1});
   return Object.keys(m).sort().reverse();
 }
-function gamesOf(St,d){return St.games.filter(function(g){return g.d===d})}
+function gamesOf(St,d){return St.games.filter(function(g){return g.d===d&&g.off})}
 function playerRows(St,d){
   var P={};
   gamesOf(St,d).forEach(function(g,j){
@@ -129,12 +129,12 @@ function gamesHtml(St,d){
 function winsFor(St,d){
   var w={w:0,b:0,r:0};
   gamesOf(St,d).forEach(function(g){winners(g).forEach(function(k){w[k]++})});
-  St.adj.forEach(function(x){if(x.d===d)w[x.k]+=x.n});
+  St.adj.forEach(function(x){if(x.off&&x.d===d)w[x.k]+=x.n});
   return w;
 }
 function allRows(St){
   var P={};
-  St.games.forEach(function(g){
+  St.games.filter(function(g){return g.off}).forEach(function(g){
     var names={};(g.pl||[]).forEach(function(n){names[n]=1});for(var n in g.pts)names[n]=1;
     for(var n2 in names){
       var p=P[n2]=P[n2]||{n:n2,tm:null,gp:0,tot:0,days:{}};
@@ -153,7 +153,7 @@ function allTableHtml(St){
   return h+'</tbody></table></div><div class="mut" style="margin-top:6px">«В среднем» — очков за игру, в которой игрок участвовал.</div>';
 }
 function meetsHtml(St){
-  var ds=dates(St).filter(function(d){return gamesOf(St,d).length||St.adj.some(function(x){return x.d===d})});
+  var ds=dates(St).filter(function(d){return gamesOf(St,d).length||St.adj.some(function(x){return x.off&&x.d===d})});
   if(!ds.length)return '';
   return '<div class="card">'+ds.map(function(d){
     var w=winsFor(St,d),n=gamesOf(St,d).length;
@@ -179,6 +179,8 @@ function render(){
   var ds=dates(S);
   if(!ds.length){$('dsel').innerHTML='';$('body').innerHTML='<div class="card empty">Данных пока нет. Результаты появятся, как только начнётся игра.</div>';return}
   if(!cur||(cur!=='all'&&ds.indexOf(cur)<0))cur=ds.indexOf(today())>=0?today():ds[0];
+  var sv=cur!=='all'?S.saves[cur]:null;
+  $('note').textContent=sv!=null&&sv<=endTs(cur)?'Итоги встречи сохранены в '+hm(sv)+'.':'Учитываются игры, завершённые до '+MEET_END+'.';
   var key=JSON.stringify([S,cur]);
   if(key===last)return;
   last=key;
@@ -195,7 +197,7 @@ function render(){
     '<div class="card"><div class="mut" style="font-weight:800;letter-spacing:.1em">ПОБЕДЫ</div><div class="wins" style="margin-top:6px">'+['w','b','r'].map(function(k){return '<div class="win"><b>'+w[k]+'</b><span>'+dot(k)+esc(S.names[k])+'</span></div>'}).join('')+'</div></div>'+
     '<h2>Очки игроков</h2>'+tableHtml(S,cur)+
     '<h2>Игры</h2>'+gamesHtml(S,cur)+
-    '<details class="card"><summary>Протокол: кто и на какой минуте забил</summary>'+protoHtml(S,cur)+'</details>'+
+    '<details class="card"><summary>Протокол: кто и на какой минуте забил</summary>'+protoHtml(S,cur,true)+'</details>'+
     '<button class="btn" id="copy">Скопировать итоги для чата</button>';
 }
 $('dsel').onchange=function(){cur=this.value;render()};
