@@ -134,9 +134,8 @@ function build(){
       var dr=c.sa===c.sb;
       if(dr&&!e.dr)return;
       St.games.push({a:c.a,b:c.b,sa:c.sa,sb:c.sb,d:e.d,dr:dr});
-      var third=['w','b','r'].filter(function(k){return k!==c.a&&k!==c.b})[0];
-      /* победа: победитель остаётся; ничья: остаётся команда Б, команда А уступает место третьей */
-      St.cur=dr?{a:c.b,b:third,sa:0,sb:0}:{a:(c.sa>c.sb?c.a:c.b),b:third,sa:0,sb:0};
+      var np=nextPair(St.games,St.games[St.games.length-1]);
+      St.cur={a:np.a,b:np.b,sa:0,sb:0};
     }
     else if(e.t==='adj'){St.adj.push({k:e.k,n:e.n,d:e.d})}
     else if(e.t==='setscore'){c.sa=e.sa;c.sb=e.sb}
@@ -147,6 +146,17 @@ function build(){
   St.games.forEach(function(g){winners(g).forEach(function(k){St.w[k]++;if(g.d===tdate)St.td[k]++})});
   St.adj.forEach(function(x){St.w[x.k]+=x.n;if(x.d===tdate)St.td[x.k]+=x.n});
   return St;
+}
+/* не больше двух игр подряд: команда, сыгравшая две игры подряд, уступает место */
+function streakOf(games,k,d){var n=0;for(var i=games.length-1;i>=0;i--){var g=games[i];if(g.d!==d)break;if(g.a===k||g.b===k)n++;else break}return n}
+function nextPair(games,g){
+  var third=['w','b','r'].filter(function(k){return k!==g.a&&k!==g.b})[0];
+  /* победа: остаётся победитель; ничья: остаётся команда Б */
+  var stay=g.dr?g.b:(g.sa>g.sb?g.a:g.b),other=stay===g.a?g.b:g.a,benched=null;
+  if(streakOf(games,stay,g.d)>=2&&streakOf(games,other,g.d)<2){benched=stay;stay=other}
+  /* ничья: уходит команда, сыгравшая две игры подряд */
+  if(g.dr&&!benched){var lv=stay===g.a?g.b:g.a;if(streakOf(games,lv,g.d)>=2)benched=lv}
+  return {a:stay,b:third,benched:benched};
 }
 function winners(g){return g.dr?[g.a,g.b]:[g.sa>g.sb?g.a:g.b]}
 
@@ -250,8 +260,8 @@ document.addEventListener('click',function(e){
     $('emsg').textContent='';send({t:'adj',k:k,n:n,d:today()});return;
   }
   if(e.target.closest('button[data-draw]')){
-    var c=S.cur,third=['w','b','r'].filter(function(k){return k!==c.a&&k!==c.b})[0];
-    $('msg').textContent='Ничья: по очку '+S.names[c.a]+' и '+S.names[c.b]+'. Следующая игра: '+S.names[c.b]+' — '+S.names[third]+'.';
+    var c=S.cur,g={a:c.a,b:c.b,sa:c.sa,sb:c.sb,d:today(),dr:true},np=nextPair(S.games.concat([g]),g);
+    $('msg').textContent='Ничья: по очку '+S.names[c.a]+' и '+S.names[c.b]+'.'+(np.benched?' '+S.names[np.benched]+' сыграла две игры подряд и уступает место.':'')+' Следующая игра: '+S.names[np.a]+' — '+S.names[np.b]+'.';
     send({t:'finish',d:today(),dr:true});return;
   }
   if(e.target.closest('button[data-cancel]')){$('msg').textContent='';return}
@@ -273,8 +283,8 @@ $('finish').onclick=function(){
     $('msg').innerHTML='Счёт равный '+c.sa+':'+c.sb+'. Записать ничью?<div class="sm"><button data-draw="1">Ничья: по очку обеим</button><button data-cancel="1">Продолжить игру</button></div>';
     return;
   }
-  var win=c.sa>c.sb?c.a:c.b,third=['w','b','r'].filter(function(k){return k!==c.a&&k!==c.b})[0];
-  $('msg').textContent='Победили: '+S.names[win]+'. Следующая игра: '+S.names[win]+' — '+S.names[third]+'.';
+  var win=c.sa>c.sb?c.a:c.b,g={a:c.a,b:c.b,sa:c.sa,sb:c.sb,d:today(),dr:false},np=nextPair(S.games.concat([g]),g);
+  $('msg').textContent='Победили: '+S.names[win]+'.'+(np.benched?' '+S.names[np.benched]+' сыграла две игры подряд и уступает место.':'')+' Следующая игра: '+S.names[np.a]+' — '+S.names[np.b]+'.';
   send({t:'finish',d:today()});
 };
 $('undo').onclick=function(){if(S.games.length){$('msg').textContent='';send({t:'undo'})}};
