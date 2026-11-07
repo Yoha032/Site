@@ -31,7 +31,17 @@ h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)
 .st{font-size:12px;font-weight:400;color:var(--mut)}
 .st.bad{color:#d62828}
 .wins{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.win{text-align:center;padding:12px 6px;margin:0}
+.win{text-align:center;padding:8px 6px;margin:0;display:flex;flex-direction:column;gap:4px;border:2px solid var(--line)}
+.win .wn{font-size:14px;margin-top:4px}
+.win .wb{width:100%;height:40px;padding:0;font-size:22px;font-weight:800}
+.win .tag{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.win.play{border-color:var(--tc);background:var(--tf)}
+.win.play .tag{color:var(--tc)}
+.tm-w{--tc:#F5F5F5;--tf:rgba(245,245,245,.14)}
+.tm-b{--tc:#A7ADB4;--tf:#000}
+.tm-r{--tc:#E5262B;--tf:rgba(229,38,43,.18)}
+.side.tm-w,.side.tm-b,.side.tm-r{border:2px solid var(--tc);background:var(--tf);border-radius:16px;padding:10px}
+#wmsg{text-align:center;min-height:0;margin-bottom:4px}
 .dot{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid #666;vertical-align:-2px;margin-right:6px}
 .win b{display:block;font:700 34px/1.1 Unbounded,sans-serif;color:var(--acc);margin-top:4px}
 .game{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -71,6 +81,7 @@ label{display:block;text-align:center;font-size:14px}
 <h1>🏀 Баскетбол <span id="st" class="st"></span></h1>
 <h2>Победы</h2>
 <div class="wins" id="wins"></div>
+<div class="msg" id="wmsg"></div>
 <h2>Текущая игра</h2>
 <div class="card">
   <div class="game" id="game"></div>
@@ -79,9 +90,7 @@ label{display:block;text-align:center;font-size:14px}
 </div>
 <details class="card" id="edit">
   <summary>Править результаты вручную</summary>
-  <div class="mut" style="margin:10px 0 2px">Победы команд</div>
-  <div id="adjw"></div>
-  <div class="mut" style="margin:14px 0 2px">Счёт текущей игры</div>
+  <div class="mut" style="margin:10px 0 2px">Счёт текущей игры</div>
   <div id="adjs"></div>
   <div class="msg" id="emsg"></div>
 </details>
@@ -189,11 +198,14 @@ function render(){
   if(key===last)return;
   last=key;
   var w=S.w,td=S.td;
-  $('wins').innerHTML=['w','b','r'].map(function(k){return '<div class="card win">'+dot(k)+esc(S.names[k])+'<b>'+w[k]+'</b><span class="mut">сегодня: '+td[k]+'</span></div>'}).join('');
+  $('wins').innerHTML=['w','b','r'].map(function(k){
+    var play=k===S.cur.a||k===S.cur.b;
+    return '<div class="card win tm-'+k+(play?' play':'')+'"><button class="wb" data-adj="'+k+'" data-n="1" aria-label="Добавить победу">+</button><div class="wn">'+dot(k)+esc(S.names[k])+'</div><b>'+w[k]+'</b><span class="mut">сегодня: '+td[k]+'</span><span class="tag">'+(play?'играет':'отдых')+'</span><button class="wb" data-adj="'+k+'" data-n="-1" aria-label="Убрать победу">−</button></div>';
+  }).join('');
   var c=S.cur;
   function opts(sel){return ['w','b','r'].map(function(k){return '<option value="'+k+'"'+(k===sel?' selected':'')+'>'+esc(S.names[k])+'</option>'}).join('')}
   function side(id,team,sc){
-    return '<div class="side"><select data-s="'+id+'">'+opts(team)+'</select><div class="score">'+sc+'</div><div class="btns">'+
+    return '<div class="side tm-'+team+'"><select data-s="'+id+'">'+opts(team)+'</select><div class="score">'+sc+'</div><div class="btns">'+
     [1,2,3].map(function(n){return '<button data-add="'+id+'" data-n="'+n+'">+'+n+'</button>'}).join('')+
     '<button class="minus" data-add="'+id+'" data-n="-1">−1</button></div></div>';
   }
@@ -211,9 +223,6 @@ function render(){
     (by[d]||[]).slice().reverse().map(function(g){return '<div class="row"><span>'+dot(g.a)+esc(S.names[g.a])+' — '+dot(g.b)+esc(S.names[g.b])+(g.dr?' <span class="mut">· ничья</span>':'')+'</span><b>'+g.sa+':'+g.sb+'</b></div>'}).join('')+
     (ab[d]||[]).map(function(x){return '<div class="row"><span class="mut">✎ правка: '+dot(x.k)+esc(S.names[x.k])+'</span><b>'+(x.n>0?'+':'')+x.n+'</b></div>'}).join('')+'</div>';
   }).join(''):'<div class="card mut">Пока нет сыгранных игр</div>';
-  $('adjw').innerHTML=['w','b','r'].map(function(k){
-    return '<div class="row"><span>'+dot(k)+esc(S.names[k])+'</span><span class="adj"><button data-adj="'+k+'" data-n="-1">−</button><b>'+w[k]+'</b><button data-adj="'+k+'" data-n="1">+</button></span></div>';
-  }).join('');
   var pk=c.a+c.b+S.names[c.a]+S.names[c.b];
   if(pk!==lastP){
     lastP=pk;
@@ -256,8 +265,8 @@ document.addEventListener('click',function(e){
   t=e.target.closest('button[data-adj]');
   if(t){
     var k=t.dataset.adj,n=Number(t.dataset.n);
-    if(S.w[k]+n<0){$('emsg').textContent='Побед не может быть меньше нуля.';return}
-    $('emsg').textContent='';send({t:'adj',k:k,n:n,d:today()});return;
+    if(S.w[k]+n<0){$('wmsg').textContent='Побед не может быть меньше нуля.';return}
+    $('wmsg').textContent='';send({t:'adj',k:k,n:n,d:today()});return;
   }
   if(e.target.closest('button[data-draw]')){
     var c=S.cur,g={a:c.a,b:c.b,sa:c.sa,sb:c.sb,d:today(),dr:true},np=nextPair(S.games.concat([g]),g);
