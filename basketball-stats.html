@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Результаты баскетбола · АндрейСпросил</title>
+<meta name="theme-color" content="#0A0A0A">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0A0A;--card:#161616;--tx:#F5F5F5;--mut:#A3A3A3;--line:#2A2A2A;--acc:#B6FF1A;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.4 Manrope,system-ui,sans-serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+main{max-width:620px;margin:0 auto;padding:16px}
+html.tg header{display:none}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.logo{font:700 20px Unbounded,sans-serif;text-decoration:none;color:var(--tx)}
+.logo b{color:var(--acc)}
+.back{display:inline-flex;align-items:center;height:34px;padding:0 14px;border-radius:17px;border:2px solid var(--line);color:var(--tx);font-weight:700;font-size:13px;text-decoration:none;white-space:nowrap}
+.mut{color:var(--mut);font-size:13px}
+h1{font:700 22px/1.2 Unbounded,sans-serif;margin:2px 0 12px}
+h2{font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--mut);text-transform:uppercase;margin:22px 0 8px}
+.st{font:400 12px Manrope,sans-serif;color:var(--mut);margin-left:8px}
+.st.bad{color:#ff6b6b}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 12px;margin-bottom:12px}
+.wins{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.win{display:flex;flex-direction:column;align-items:center}
+.win b{font:700 28px/1.2 Unbounded,sans-serif;color:var(--acc)}
+.win span{font-size:12px;display:flex;align-items:center;gap:5px}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;border:1px solid #666;flex:none}
+select{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--tx);margin-bottom:12px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:10px 8px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+th{font-size:12px;color:var(--mut);font-weight:800}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card);min-width:140px;padding-left:12px}
+td .rk{color:var(--mut);font-size:12px;display:inline-block;width:18px}
+td.z{color:#6f6f6f}
+td.dim{color:#4a4a4a}
+td.tot,th.tot{font-weight:800;color:var(--acc);font-size:17px}
+.game{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.game:last-child{border:0}
+.game .no{width:22px;color:var(--mut);font-weight:700}
+.game .tt{flex:1;min-width:0}
+.game b{font:700 16px Unbounded,sans-serif;white-space:nowrap}
+.btn{width:100%;margin-top:12px;padding:12px;border-radius:12px;border:1px solid var(--acc);background:var(--acc);color:#0A0A0A;font:inherit;font-weight:800;cursor:pointer}
+details.card summary{cursor:pointer;font-weight:600}
+.pg{margin:12px 0}
+.ph{font-weight:800;margin-bottom:4px}
+.lg{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}
+.lg .mn{width:44px;color:var(--mut);font-weight:700;flex:none}
+.lg span:nth-child(2){flex:1;min-width:0}
+.lg small{color:var(--mut);width:40px;text-align:right}
+.lg i{font-style:normal;color:#FF8A8A;font-size:12px;margin-left:4px}
+.lg.fin,.lg.fin .mn{color:var(--acc)}
+.empty{color:var(--mut);text-align:center;padding:24px 8px}
+#cmsg{text-align:center;color:var(--acc);font-size:14px;min-height:20px;margin-top:6px}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <a class="logo" id="logo" href="index.html" aria-label="АндрейСпросил, на главную">Андрей<b>Спросил</b></a>
+  <a class="back" id="back" href="basketball.html">← К счёту</a>
+</header>
+<h1>Результаты встречи<span class="st" id="st"></span></h1>
+<select id="dsel" aria-label="Дата встречи"></select>
+<div class="mut" id="note" style="margin:-4px 0 12px"></div>
+<div id="body"></div>
+<div id="cmsg" role="status"></div>
+</main>
+<script src="basketball-config.js"></script>
+<script src="basketball-core.js"></script>
+<script>
+var TG=window.Telegram&&Telegram.WebApp;
+if(TG&&TG.initData){
+  document.documentElement.classList.add('tg');
+  try{TG.ready();TG.expand();TG.setHeaderColor('#0A0A0A');TG.setBackgroundColor('#0A0A0A')}catch(e){}
+}
+var EMB=(top!==self)||/[?&]app/.test(location.search);
+document.getElementById('back').href=EMB?'basketball.html?app=1':'basketball.html';
+document.getElementById('logo').href=EMB?'index.html?app=1':'index.html';
+var remote=[],S=null,cur=null,last='';
+function $(i){return document.getElementById(i)}
+function setSt(ok){var s=$('st');s.textContent=SYNC?(ok?'● онлайн':'● нет связи'):'● только это устройство';s.className='st'+(SYNC&&!ok?' bad':'')}
+
+function dates(St){
+  var m={};
+  St.games.forEach(function(g){if(g.off)m[g.d]=1});
+  St.adj.forEach(function(x){if(x.off)m[x.d]=1});
+  return Object.keys(m).sort().reverse();
+}
+function gamesOf(St,d){return St.games.filter(function(g){return g.d===d&&g.off})}
+function playerRows(St,d){
+  var P={};
+  gamesOf(St,d).forEach(function(g,j){
+    var names={};
+    (g.pl||[]).forEach(function(n){names[n]=1});for(var n in g.pts)names[n]=1;
+    for(var n2 in names){
+      var p=P[n2]=P[n2]||{n:n2,tm:null,v:[],tot:0};
+      p.v[j]=g.pts[n2]||0;p.tot+=g.pts[n2]||0;p.tm=(g.pm&&g.pm[n2])||p.tm;
+    }
+  });
+  return Object.keys(P).map(function(k){return P[k]}).sort(function(a,b){return b.tot-a.tot||a.n.localeCompare(b.n,'ru')});
+}
+function tableHtml(St,d){
+  var gs=gamesOf(St,d),rows=playerRows(St,d);
+  if(!gs.length)return '<div class="card empty">Сыгранных игр за этот день пока нет</div>';
+  var h='<div class="tw"><table><thead><tr><th>Игрок</th>'+gs.map(function(g,j){return '<th>'+(j+1)+'</th>'}).join('')+'<th class="tot">Σ</th></tr></thead><tbody>';
+  rows.forEach(function(p,i){
+    h+='<tr><td><span class="rk">'+(i+1)+'</span>'+(p.tm?dot(p.tm)+' ':'')+esc(p.n)+'</td>'+
+    gs.map(function(g,j){var v=p.v[j];return v===undefined?'<td class="dim">—</td>':'<td'+(v===0?' class="z"':'')+'>'+v+'</td>'}).join('')+
+    '<td class="tot">'+p.tot+'</td></tr>';
+  });
+  return h+'</tbody></table></div><div class="mut" style="margin-top:6px">1, 2, 3… — номера игр. Прочерк: игрок не играл. Σ — всего очков за встречу.</div>';
+}
+function gamesHtml(St,d){
+  var gs=gamesOf(St,d);
+  if(!gs.length)return '';
+  return '<div class="card">'+gs.map(function(g,j){
+    return '<div class="game"><span class="no">'+(j+1)+'</span><span class="tt">'+dot(g.a)+esc(St.names[g.a])+' — '+dot(g.b)+esc(St.names[g.b])+(g.dr?' <span class="mut">· ничья</span>':'')+'</span><b>'+g.sa+':'+g.sb+'</b></div>';
+  }).join('')+'</div>';
+}
+function winsFor(St,d){
+  var w={w:0,b:0,r:0};
+  gamesOf(St,d).forEach(function(g){winners(g).forEach(function(k){w[k]++})});
+  St.adj.forEach(function(x){if(x.off&&x.d===d)w[x.k]+=x.n});
+  return w;
+}
+function allRows(St){
+  var P={};
+  St.games.filter(function(g){return g.off}).forEach(function(g){
+    var names={};(g.pl||[]).forEach(function(n){names[n]=1});for(var n in g.pts)names[n]=1;
+    for(var n2 in names){
+      var p=P[n2]=P[n2]||{n:n2,tm:null,gp:0,tot:0,days:{}};
+      p.gp++;p.tot+=g.pts[n2]||0;p.days[g.d]=1;p.tm=(g.pm&&g.pm[n2])||p.tm;
+    }
+  });
+  return Object.keys(P).map(function(k){var p=P[k];p.meets=Object.keys(p.days).length;p.avg=p.gp?p.tot/p.gp:0;return p}).sort(function(a,b){return b.tot-a.tot||b.avg-a.avg||a.n.localeCompare(b.n,'ru')});
+}
+function allTableHtml(St){
+  var rows=allRows(St);
+  if(!rows.length)return '<div class="card empty">Сыгранных игр пока нет</div>';
+  var h='<div class="tw"><table><thead><tr><th>Игрок</th><th>Встреч</th><th>Игр</th><th class="tot">Очки</th><th>В среднем</th></tr></thead><tbody>';
+  rows.forEach(function(p,i){
+    h+='<tr><td><span class="rk">'+(i+1)+'</span>'+(p.tm?dot(p.tm)+' ':'')+esc(p.n)+'</td><td>'+p.meets+'</td><td>'+p.gp+'</td><td class="tot">'+p.tot+'</td><td>'+p.avg.toFixed(1).replace('.',',')+'</td></tr>';
+  });
+  return h+'</tbody></table></div><div class="mut" style="margin-top:6px">«В среднем» — очков за игру, в которой игрок участвовал.</div>';
+}
+function meetsHtml(St){
+  var ds=dates(St).filter(function(d){return gamesOf(St,d).length||St.adj.some(function(x){return x.off&&x.d===d})});
+  if(!ds.length)return '';
+  return '<div class="card">'+ds.map(function(d){
+    var w=winsFor(St,d),n=gamesOf(St,d).length;
+    return '<div class="game"><span class="tt"><b style="font:700 15px Manrope,sans-serif">'+esc(fmtShort(d))+'</b> <span class="mut">· игр: '+n+'</span><div class="mut">'+['w','b','r'].map(function(k){return esc(St.names[k])+' '+w[k]}).join(' · ')+'</div></span></div>';
+  }).join('')+'</div>';
+}
+function summary(St,d){
+  var w=winsFor(St,d),rows=playerRows(St,d),gs=gamesOf(St,d);
+  var t='🏀 Итоги встречи, '+fmtShort(d)+'\n\nПобеды: '+['w','b','r'].map(function(k){return St.names[k]+' '+w[k]}).join(' · ')+'\n\nИгры:\n'+
+    gs.map(function(g,j){return (j+1)+'. '+St.names[g.a]+' '+g.sa+':'+g.sb+' '+St.names[g.b]+(g.dr?' (ничья)':'')}).join('\n');
+  var top=rows.filter(function(p){return p.tot>0}).slice(0,5);
+  if(top.length)t+='\n\nБольше всех очков:\n'+top.map(function(p,i){return (i+1)+'. '+p.n+' — '+p.tot}).join('\n');
+  return t;
+}
+function copyText(t){
+  function fallback(){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}document.body.removeChild(a);return ok}
+  if(navigator.clipboard&&navigator.clipboard.writeText){return navigator.clipboard.writeText(t).then(function(){return true},function(){return fallback()})}
+  return Promise.resolve(fallback());
+}
+
+function render(){
+  S=build(remote);
+  var ds=dates(S);
+  if(!ds.length){$('dsel').innerHTML='';$('body').innerHTML='<div class="card empty">Данных пока нет. Результаты появятся, как только начнётся игра.</div>';return}
+  if(!cur||(cur!=='all'&&ds.indexOf(cur)<0))cur=ds.indexOf(today())>=0?today():ds[0];
+  var sv=cur!=='all'?S.saves[cur]:null;
+  $('note').textContent=sv!=null&&sv<=endTs(cur)?'Итоги встречи сохранены в '+hm(sv)+'.':'Учитываются игры, завершённые до '+MEET_END+'.';
+  var key=JSON.stringify([S,cur]);
+  if(key===last)return;
+  last=key;
+  $('dsel').innerHTML='<option value="all"'+(cur==='all'?' selected':'')+'>За все встречи</option>'+ds.map(function(d){return '<option value="'+d+'"'+(d===cur?' selected':'')+'>'+esc(fmt(d))+'</option>'}).join('');
+  if(cur==='all'){
+    $('body').innerHTML=
+      '<div class="card"><div class="mut" style="font-weight:800;letter-spacing:.1em">ПОБЕДЫ ЗА ВСЁ ВРЕМЯ</div><div class="wins" style="margin-top:6px">'+['w','b','r'].map(function(k){return '<div class="win"><b>'+S.w[k]+'</b><span>'+dot(k)+esc(S.names[k])+'</span></div>'}).join('')+'</div></div>'+
+      '<h2>Рейтинг игроков</h2>'+allTableHtml(S)+
+      '<h2>Встречи</h2>'+meetsHtml(S);
+    return;
+  }
+  var w=winsFor(S,cur);
+  $('body').innerHTML=
+    '<div class="card"><div class="mut" style="font-weight:800;letter-spacing:.1em">ПОБЕДЫ</div><div class="wins" style="margin-top:6px">'+['w','b','r'].map(function(k){return '<div class="win"><b>'+w[k]+'</b><span>'+dot(k)+esc(S.names[k])+'</span></div>'}).join('')+'</div></div>'+
+    '<h2>Очки игроков</h2>'+tableHtml(S,cur)+
+    '<h2>Игры</h2>'+gamesHtml(S,cur)+
+    '<details class="card"><summary>Протокол: кто и на какой минуте забил</summary>'+protoHtml(S,cur,true)+'</details>'+
+    '<button class="btn" id="copy">Скопировать итоги для чата</button>';
+}
+$('dsel').onchange=function(){cur=this.value;render()};
+document.addEventListener('click',function(e){
+  if(e.target.id==='copy'){
+    copyText(summary(S,cur)).then(function(ok){$('cmsg').textContent=ok?'Скопировано. Вставьте в чат.':'Не удалось скопировать'});
+  }
+});
+function load(){
+  if(!SYNC){try{remote=JSON.parse(localStorage.getItem(LKEY)||'[]')}catch(e){remote=[]}setSt(true);render();return Promise.resolve()}
+  return fetch(EURL).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(o){
+    remote=o?Object.keys(o).sort().map(function(k){return o[k]}):[];setSt(true);render();
+  }).catch(function(){setSt(false)});
+}
+load();
+setInterval(load,5000);
+</script>
+</body>
+</html>

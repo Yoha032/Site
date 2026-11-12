@@ -2,90 +2,46 @@
  "works": [
   {
    "title": "Видео 1",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-240926221_456239017?t=45s"
   },
   {
    "title": "Видео 2",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-232762705_456239024?t=13m36s"
   },
   {
    "title": "Видео 3",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-232762705_456239026?t=2m26s"
   },
   {
    "title": "Видео 4",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-224542868_456239735"
   },
   {
    "title": "Видео 5",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-224542868_456239708?t=2h10m12s"
   },
   {
    "title": "Видео 6",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-232762705_456239017?t=36m45s"
   },
   {
    "title": "Видео 7",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-224542868_456239684"
   },
   {
    "title": "Видео 8",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-224542868_456239687?t=1h14m45s"
   },
   {
    "title": "Видео 9",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-224542868_456239710?t=1h45m42s"
   },
   {
    "title": "Видео 10",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-224542868_456239733?t=1h18s"
   },
   {
    "title": "Видео 11",
-   "type": "ev",
-   "date": "2026-01-01",
-   "role": "ведущий",
-   "duration": "",
    "url": "https://vkvideo.ru/video-224542868_456239663?t=16m39s"
   }
  ]
