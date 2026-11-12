@@ -247,7 +247,7 @@ else if(!r.ok)err="Сервер ответил "+r.status+" на запрос ф
 else if(n&&n<5000)err="Файл на сервере слишком маленький ("+n+" байт): это не аудио, а заглушка. Загрузите MP3 заново обычным способом (не через Git LFS).";
 else if(!/audio|mpeg|mp3|mp4|octet/i.test(ct))err="Сервер отдал не аудио ("+ct+"). Проверьте, что файл настоящий MP3.";
 else err="Файл найден ("+ct+(n?", "+Math.round(n/1048576)+" МБ":"")+"), но браузер не смог его воспроизвести. Возможно, это не MP3, а другой формат с расширением .mp3 или файл повреждён: сконвертируйте его в MP3 заново.";
-ui()}).catch(function(){if(cur===ep){err="Не удалось связаться с сервером. Проверьте интернет и попробуйте ещё раз.";ui()}})}
+ui()}).catch(function(){if(cur===ep){err="Не удалось получить аудиофайл (нет сети, блокировка или файл лежит по другому адресу). Нажмите ▶ ещё раз или проверьте путь к mp3 в catalog.json.";ui()}})}
 setInterval(function(){if(!real&&play&&cur){pos+=.25*R[ri];if(pos>=cur.d){pos=cur.d;ended()}ui()}},250);
 $("pl").onclick=function(){toggle()};$("bk").onclick=function(){setPos(pos-15)};$("fw").onclick=function(){setPos(pos+30)};
 $("sp").onclick=function(){ri=(ri+1)%R.length;au.playbackRate=R[ri];ui()};
@@ -275,7 +275,7 @@ function fetchT(u,ms){var ac=window.AbortController?new AbortController():null,t
 return fetch(u,ac?{signal:ac.signal}:{}).then(function(r){clearTimeout(t);if(!r.ok)throw 0;return r.json()})}
 function getTree(){var g=ghInfo();if(!g)return Promise.resolve(null);
 var c=S.g("as:tree");if(c&&c.k===g.o+"/"+g.r&&Date.now()-c.t<120000)return Promise.resolve(c.f);
-return fetchT("https://api.github.com/repos/"+g.o+"/"+g.r+"/git/trees/HEAD?recursive=1",6000).then(function(j){
+return fetchT("https://api.github.com/repos/"+g.o+"/"+g.r+"/git/trees/HEAD?recursive=1",3000).then(function(j){
 var f=(j.tree||[]).filter(function(x){return x.type==="blob"&&/^podcasts\/[^\/]+\/.+\.(mp3|m4a)$/i.test(x.path)}).map(function(x){return x.path});
 S.s("as:tree",{k:g.o+"/"+g.r,t:Date.now(),f:f});return f}).catch(function(){return c?c.f:null})}
 function addedDate(p){var g=ghInfo(),m=S.g("as:fd")||{};if(m[p]!==undefined)return Promise.resolve(m[p]);if(!g)return Promise.resolve("");
