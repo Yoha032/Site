@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мои работы · АндрейСпросил</title>
+<meta name="theme-color" content="#0A0A0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="АндрейСпросил">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Unbounded:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--r:20px;--bg:#0A0A0A;--cd:#161616;--tx:#F5F5F5;--mu:#A3A3A3;--ln:#2A2A2A;--ac:#B6FF1A;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth}
+body{margin:0;background:#0A0A0A;color:var(--tx);font:400 16px/1.4 Manrope,system-ui,sans-serif}
+a{color:inherit}
+.wrap{max-width:560px;margin:0 auto;padding:20px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px}
+.logo{font:700 22px Unbounded,sans-serif;display:flex;overflow:hidden;text-decoration:none}
+.logo span{display:inline-block;animation:inL .7s cubic-bezier(.2,.7,.2,1) both}
+.logo .b{color:var(--ac);animation-name:inR}
+@keyframes inL{from{transform:translateX(-120%);opacity:0}}
+@keyframes inR{from{transform:translateX(120%);opacity:0}}
+.back{display:inline-flex;align-items:center;height:36px;padding:0 14px;border-radius:var(--r);border:2px solid var(--ln);color:var(--tx);font-weight:700;font-size:13px;text-decoration:none;transition:.2s;white-space:nowrap}
+.back:hover{border-color:var(--ac);color:var(--ac)}
+.rv{opacity:0;transform:translateY(16px);animation:up .6s cubic-bezier(.2,.7,.2,1) calc(var(--i,0)*100ms) forwards}
+@keyframes up{to{opacity:1;transform:none}}
+.col{display:flex;flex-direction:column;gap:16px}
+.lbl{color:var(--ac);font-weight:800;font-size:12px;letter-spacing:.12em}
+.top h1{margin:6px 0 6px;font:700 28px/1.1 Unbounded,sans-serif;letter-spacing:.02em}
+.top h1 span{color:var(--ac)}
+.top p{margin:0;color:var(--mu);font-size:14px}
+.stats{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
+.stat{background:var(--cd);border-radius:var(--r);padding:12px 8px;text-align:center}
+.stat b{display:block;font:700 22px Unbounded,sans-serif;color:var(--ac)}
+.stat span{color:var(--mu);font-size:12px}
+.chips{display:flex;gap:8px;overflow-x:auto;margin:0 -20px;padding:2px 20px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:40px;padding:0 16px;border-radius:var(--r);border:2px solid var(--ln);background:none;color:var(--tx);font:700 13px Manrope,sans-serif;cursor:pointer;transition:.2s}
+.chip small{color:var(--mu);font-weight:600;margin-left:4px;transition:.2s}
+.chip:hover{border-color:var(--ac)}
+.chip[aria-pressed=true]{background:var(--ac);border-color:var(--ac);color:#0A0A0A}
+.chip[aria-pressed=true] small{color:#0A0A0A}
+.card{display:block;width:100%;text-align:left;padding:0;border:0;background:var(--cd);color:var(--tx);border-radius:var(--r);overflow:hidden;cursor:pointer;font:inherit;transition:transform .2s}
+.card:hover{transform:translateY(-3px)}
+.card:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.th{position:relative;aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden;background:var(--g,linear-gradient(135deg,#1d2b05,#0e1a02))}
+.th img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.th::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 14px,transparent 14px 28px)}
+.th.has::before{background:linear-gradient(180deg,rgba(0,0,0,.25),transparent 40%,rgba(0,0,0,.35))}
+.th::after{content:"";position:absolute;left:-60%;top:0;bottom:0;width:40%;background:linear-gradient(100deg,transparent,rgba(182,255,26,.18),transparent);transform:skewX(-20deg);transition:left .7s}
+.card:hover .th::after{left:130%}
+.play{position:relative;z-index:1;width:64px;height:64px;border-radius:50%;background:var(--ac);display:grid;place-items:center;color:#0A0A0A;transition:transform .2s}
+.card:hover .play{transform:scale(1.1)}
+.tag{position:absolute;left:12px;top:12px;z-index:1;background:rgba(10,10,10,.82);padding:5px 11px;border-radius:var(--r);font:800 11px Manrope,sans-serif;letter-spacing:.1em}
+.dur{position:absolute;right:12px;bottom:12px;z-index:1;background:rgba(10,10,10,.82);padding:3px 9px;border-radius:var(--r);font:700 12px Manrope,sans-serif}
+.newb{position:absolute;right:12px;top:12px;z-index:1;background:var(--ac);color:#0A0A0A;font:800 11px Manrope,sans-serif;letter-spacing:.1em;padding:4px 10px;border-radius:var(--r);animation:pls 1.6s ease-in-out infinite}
+@keyframes pls{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(182,255,26,.6)}50%{transform:scale(1.08);box-shadow:0 0 0 8px rgba(182,255,26,0)}}
+.info{padding:14px 16px 16px}
+.info strong{display:block;font:600 16px/1.25 Unbounded,sans-serif;margin-bottom:4px;overflow-wrap:anywhere}
+.info span{color:var(--mu);font-size:14px}
+.big .info strong{font-size:18px}
+.big .play{width:76px;height:76px}
+.empty{background:var(--cd);border-radius:var(--r);padding:28px 20px;text-align:center}
+.empty b{display:block;font:600 18px Unbounded,sans-serif;margin-bottom:6px}
+.empty span{color:var(--mu);font-size:14px}
+.ball{display:flex;align-items:center;gap:14px;border-radius:var(--r);padding:16px;background:var(--cd);border:2px solid var(--ln);text-decoration:none;color:var(--tx);transition:.2s}
+.ball:hover{border-color:var(--ac);transform:translateY(-3px)}
+.ball i{font-style:normal;font-size:34px;line-height:1}
+.ball div{flex:1;min-width:0}
+.ball small{color:var(--ac);font-weight:800;font-size:12px;letter-spacing:.12em}
+.ball strong{display:block;font:600 18px Unbounded,sans-serif;margin:4px 0 2px}
+.ball span{color:var(--mu);font-size:14px}
+.ball em{font-style:normal;color:var(--ac);font-weight:800;font-size:22px}
+.promo{display:block;border:2px solid var(--ac);border-radius:var(--r);padding:16px;text-decoration:none;color:var(--tx);transition:background .2s}
+.promo:hover{background:#161616}
+.promo small{color:var(--ac);font-weight:800;font-size:12px;letter-spacing:.12em}
+.promo div{font:600 18px Unbounded,sans-serif;margin:6px 0 2px}
+.promo span{color:var(--mu);font-size:14px}
+.tick{margin-top:24px;overflow:hidden;border-block:1px solid var(--ln);padding:10px 0;white-space:nowrap}
+.trk{display:inline-block;animation:mq 30s linear infinite;color:var(--ac);font:700 14px Unbounded,sans-serif;letter-spacing:.08em}
+@keyframes mq{to{transform:translateX(-50%)}}
+.md{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.md.on{display:flex}
+.box{width:100%;max-width:560px;background:var(--cd);border-radius:var(--r);overflow:hidden}
+.vid{position:relative;aspect-ratio:16/9;display:grid;place-items:center;text-align:center;background:#000;color:var(--mu);font-size:13px}
+.vid iframe,.vid video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.vid .ph{padding:16px}
+.vid b{display:block;color:var(--ac);font:800 12px Manrope,sans-serif;letter-spacing:.12em;margin-bottom:6px}
+.bx{padding:14px 16px 16px;display:flex;align-items:center;gap:12px}
+.bx div{flex:1;min-width:0}
+.bx strong{display:block;font:600 15px/1.25 Unbounded,sans-serif;overflow-wrap:anywhere}
+.bx span{color:var(--mu);font-size:13px}
+.dsc{margin:0 16px 12px;color:var(--mu);font-size:13px;white-space:pre-line;max-height:132px;overflow:auto;overflow-wrap:anywhere}
+.src{display:inline-block;margin:0 16px 16px;color:var(--ac);font-weight:700;font-size:13px}
+.x{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--ln);background:none;color:var(--tx);font-size:20px;cursor:pointer;transition:.2s}
+.x:hover{border-color:var(--ac);color:var(--ac)}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header>
+  <a class="logo" id="logo" href="index.html" aria-label="АндрейСпросил, на главную"><span>Андрей</span><span class="b">Спросил</span></a>
+  <a class="back" id="home" href="index.html">← На главную</a>
+</header>
+
+<div class="col">
+  <div class="top rv" style="--i:1">
+    <div class="lbl">МЕДИА</div>
+    <h1>МОИ <span>РАБОТЫ</span></h1>
+    <p>Видеоотчёты с мероприятий, интервью и участие в шоу. Нажмите на карточку, чтобы посмотреть.</p>
+  </div>
+
+  <div class="stats rv" style="--i:2" id="stats" hidden aria-label="Коротко о работах">
+    <div class="stat"><b id="s-ev">0</b><span>мероприятий</span></div>
+    <div class="stat"><b id="s-in">0</b><span>интервью</span></div>
+    <div class="stat"><b id="s-sh">0</b><span>шоу</span></div>
+  </div>
+
+  <div class="chips rv" style="--i:3" id="chips" role="group" aria-label="Фильтр по типу" hidden>
+    <button class="chip" type="button" data-f="all" aria-pressed="true">Все<small id="n-all"></small></button>
+    <button class="chip" type="button" data-f="ev" aria-pressed="false">Мероприятия<small id="n-ev"></small></button>
+    <button class="chip" type="button" data-f="in" aria-pressed="false">Интервью<small id="n-in"></small></button>
+    <button class="chip" type="button" data-f="sh" aria-pressed="false">Шоу<small id="n-sh"></small></button>
+  </div>
+
+  <div class="col" id="list"></div>
+
+  <a class="ball rv" style="--i:8" id="ball" href="basketball.html"><i aria-hidden="true">🏀</i><div><small>ПРИЛОЖЕНИЕ</small><strong>Субботний баскетбол</strong><span>Счёт, победы и составы команд</span></div><em aria-hidden="true">→</em></a>
+
+  <a class="promo rv" style="--i:9" href="https://t.me/NemoyKoncert" target="_blank" rel="noopener noreferrer"><small>СОТРУДНИЧЕСТВО</small><div>Нужен ведущий или видео?</div><span>Напишите в Telegram, обсудим ваше мероприятие</span></a>
+</div>
+
+<div class="tick" aria-hidden="true"><div class="trk" id="trk"></div></div>
+</main>
+
+<div class="md" id="md" role="dialog" aria-modal="true" aria-label="Просмотр видео">
+  <div class="box">
+    <div class="vid" id="vid"></div>
+    <div class="bx"><div><strong id="mt"></strong><span id="mm"></span></div><button class="x" id="mx" type="button" aria-label="Закрыть">✕</button></div>
+    <p class="dsc" id="mdsc" hidden></p>
+    <a class="src" id="msrc" href="#" target="_blank" rel="noopener noreferrer" hidden>Открыть на сайте-источнике ↗</a>
+  </div>
+</div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+
+  /* Внутри розового экрана (режим 💻) возвращаемся на главную тоже внутри экрана */
+  var EMB=(top!==self)||/[?&]app/.test(location.search);
+  var HOME=EMB?"index.html?app=1":"index.html";
+  $("home").href=HOME;$("logo").href=HOME;
+  $("ball").href=EMB?"basketball.html?app=1":"basketball.html";
+
+  var TYPES={ev:"МЕРОПРИЯТИЕ",in:"ИНТЕРВЬЮ",sh:"ШОУ"};
+  var GR={ev:"linear-gradient(135deg,#27400a,#0d1802 70%)",in:"linear-gradient(135deg,#2a1850,#120c1e 70%)",sh:"linear-gradient(135deg,#4a1d12,#160a06 70%)"};
+  var MON=["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+  var PLAY='<svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
+
+  /* Образец для предпросмотра: открывается только по адресу media.html?demo */
+  var DEMO=[
+    {title:"Название мероприятия: видеоотчёт",type:"ev",date:"2026-10-24",role:"ведущий",duration:"4:20",isNew:true},
+    {title:"Интервью с гостем",type:"in",date:"2026-09-12",role:"интервьюер",duration:"18:05"},
+    {title:"Участие в шоу",type:"sh",date:"2026-08-03",role:"участник",duration:"9:42"},
+    {title:"Корпоратив: как это было",type:"ev",date:"2026-07-19",role:"ведущий",duration:"3:15"},
+    {title:"Разговор в студии",type:"in",date:"2026-06-08",role:"интервьюер",duration:"24:30"}
+  ];
+
+  function ytId(u){var m=/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/.exec(u||"");return m&&m[1]}
+  function rtId(u){var m=/rutube\.ru\/(?:video|play\/embed)\/([0-9a-f]{32})/i.exec(u||"");return m&&m[1]}
+  function vkSrc(u){var m=/vk(?:video)?\.(?:com|ru)\/video(-?\d+)_(\d+)/.exec(u||""),t=/[?&]t=([0-9hms]+)/.exec(u||"");return m&&"https://vk.com/video_ext.php?oid="+m[1]+"&id="+m[2]+"&autoplay=1"+(t?"&t="+t[1]:"")}
+  function isHttps(u){return /^https:\/\//i.test(u||"")}
+  function plain(u){return /^(https:\/\/|\/|[\w.\-%Ѐ-ӿ][^:]*$)/i.test(u||"")}
+
+  /* Как показывать видео: iframe / файл / только ссылка */
+  function player(w){
+    var u=w.url||"",id;
+    if(isHttps(w.embed))return{k:"frame",src:w.embed};
+    if((id=ytId(u)))return{k:"frame",src:"https://www.youtube-nocookie.com/embed/"+id+"?autoplay=1&rel=0"};
+    if((id=rtId(u)))return{k:"frame",src:"https://rutube.ru/play/embed/"+id};
+    if(vkSrc(u))return{k:"frame",src:vkSrc(u)};
+    if(/\.(mp4|webm|mov)(\?|#|$)/i.test(u)&&plain(u))return{k:"file",src:u};
+    return null;
+  }
+  function cover(w){
+    if(w.cover&&plain(w.cover))return w.cover;
+    var id=ytId(w.url);return id?"https://i.ytimg.com/vi/"+id+"/hqdefault.jpg":"";
+  }
+  function when(d){var m=/^(\d{4})-(\d{2})/.exec(d||"");return m?MON[+m[2]-1]+" "+m[1]:(d||"")}
+
+  var all=[],filter="all",last=null;
+
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+
+  function card(w,i,big){
+    var b=el("button","card rv"+(big?" big":""));b.type="button";b.style.setProperty("--i",Math.min(i+4,8));
+    var th=el("div","th");th.style.setProperty("--g",GR[w.type]||GR.ev);
+    var c=cover(w);
+    if(c){var im=new Image();im.alt="";im.loading="lazy";im.referrerPolicy="no-referrer";im.onload=function(){th.classList.add("has")};im.onerror=function(){im.remove()};im.src=c;th.appendChild(im)}
+    if(TYPES[w.type])th.appendChild(el("span","tag",TYPES[w.type]));
+    if(w.isNew||w["new"])th.appendChild(el("b","newb","НОВОЕ"));
+    var pl=el("span","play");pl.innerHTML=PLAY;th.appendChild(pl);
+    if(w.duration)th.appendChild(el("span","dur",w.duration));
+    var inf=el("div","info");inf.appendChild(el("strong",null,w.title||"Без названия"));
+    inf.appendChild(el("span",null,[when(w.date),w.role].filter(Boolean).join(" · ")));
+    b.appendChild(th);b.appendChild(inf);
+    b.addEventListener("click",function(){open(w,b)});
+    return b;
+  }
+
+  function render(){
+    var list=$("list");list.innerHTML="";
+    var shown=all.filter(function(w){return filter==="all"||w.type===filter});
+    shown.forEach(function(w,i){list.appendChild(card(w,i,i===0))});
+  }
+
+  function setup(works){
+    all=works.filter(function(w){return w&&w.title}).map(function(w,i){w._i=i;return w}).sort(function(a,b){var x=a.date||"",y=b.date||"";return x===y?a._i-b._i:(y>x?1:-1)});
+    if(!all.length){
+      var e=el("div","empty rv");e.style.setProperty("--i","2");
+      e.appendChild(el("b",null,"Скоро здесь появятся работы"));
+      e.appendChild(el("span",null,"Видеоотчёты, интервью и шоу добавлю в ближайшее время."));
+      $("list").appendChild(e);return;
+    }
+    var cnt={all:all.length,ev:0,in:0,sh:0};
+    all.forEach(function(w){if(cnt[w.type]!=null)cnt[w.type]++});
+    ["all","ev","in","sh"].forEach(function(k){$("n-"+k).textContent=cnt[k]});
+    ["ev","in","sh"].forEach(function(k){$("s-"+k).textContent=cnt[k];$("s-"+k).parentNode.hidden=!cnt[k]});
+    var typed=cnt.ev+cnt.in+cnt.sh;
+    ["ev","in","sh"].forEach(function(k){var c=document.querySelector('.chip[data-f="'+k+'"]');if(c)c.hidden=!cnt[k]});
+    $("stats").hidden=!typed;$("chips").hidden=!typed;
+    render();
+  }
+
+  $("chips").addEventListener("click",function(e){
+    var b=e.target.closest(".chip");if(!b)return;
+    [].forEach.call(document.querySelectorAll(".chip"),function(x){x.setAttribute("aria-pressed",String(x===b))});
+    filter=b.dataset.f;render();
+  });
+
+  /* окно просмотра */
+  var md=$("md"),vid=$("vid");
+  function open(w,from){
+    last=from;vid.innerHTML="";
+    var p=player(w);
+    if(p&&p.k==="frame"){
+      var f=document.createElement("iframe");f.src=p.src;f.title=w.title||"Видео";
+      f.allow="autoplay; fullscreen; picture-in-picture; encrypted-media";f.allowFullscreen=true;f.referrerPolicy="strict-origin-when-cross-origin";
+      vid.appendChild(f);
+    }else if(p&&p.k==="file"){
+      var v=document.createElement("video");v.src=p.src;v.controls=true;v.autoplay=true;v.playsInline=true;v.preload="metadata";
+      vid.appendChild(v);
+    }else{
+      var ph=el("div","ph");ph.appendChild(el("b",null,w.url?"ВИДЕО ОТКРОЕТСЯ НА САЙТЕ-ИСТОЧНИКЕ":"ЗДЕСЬ БУДЕТ ВИДЕО"));
+      ph.appendChild(document.createTextNode(w.url?"Нажмите ссылку ниже":"Ссылка появится совсем скоро"));
+      vid.appendChild(ph);
+    }
+    $("mt").textContent=w.title||"";$("mm").textContent=[when(w.date),w.role].filter(Boolean).join(" · ");
+    var d=$("mdsc");d.textContent=w.desc||"";d.hidden=!w.desc;
+    var s=$("msrc");if(isHttps(w.url)){s.href=w.url;s.hidden=false}else s.hidden=true;
+    md.classList.add("on");$("mx").focus();
+  }
+  function close(){md.classList.remove("on");vid.innerHTML="";if(last)last.focus()}
+  $("mx").onclick=close;
+  md.addEventListener("click",function(e){if(e.target===md)close()});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&md.classList.contains("on"))close()});
+  addEventListener("pagehide",function(){vid.innerHTML=""});
+
+  $("trk").textContent=("ВИДЕООТЧЁТЫ · ИНТЕРВЬЮ · ШОУ · МЕРОПРИЯТИЯ · ").repeat(8);
+
+  if(/[?&]demo/.test(location.search)){setup(DEMO);return}
+  fetch("works.json",{cache:"no-cache"}).then(function(r){if(!r.ok)throw 0;return r.json()})
+    .then(function(j){setup(Array.isArray(j)?j:(j.works||[]))}).catch(function(){setup([])});
+})();
+</script>
+</body>
+</html>
