@@ -1,0 +1,22 @@
+name: Подтянуть данные о видео
+on:
+  push:
+    paths: ["works.json"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  works:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python make_works.py
+      - run: |
+          git config user.name "works-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add works.json
+          [ -d covers ] && git add covers || true
+          git diff --cached --quiet || (git commit -m "Подтянуть названия и обложки видео" && git push)
